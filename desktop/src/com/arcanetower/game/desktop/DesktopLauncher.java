@@ -7,9 +7,10 @@ import com.arcanetower.game.ArcaneTower;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "Drop";
-		config.width = 800;
-		config.height = 480;
+		config.title = "Arcane Tower";
+		config.width = ArcaneTower.SCREEN_WIDTH;
+		config.height = ArcaneTower.SCREEN_HEIGTH;
+		config.resizable = false;
 		
 		new LwjglApplication(new ArcaneTower(), config);
 	}

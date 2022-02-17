@@ -1,22 +1,41 @@
 package com.arcanetower.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
+import com.arcanetower.screens.MainGameScreen;
+import com.arcanetower.screens.MainMenuScreen;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-public class ArcaneTower extends ApplicationAdapter {
+public class ArcaneTower extends Game {
+	
+	public static final int SCREEN_WIDTH = 800;
+	public static final int SCREEN_HEIGTH = 480;
+	
+	private SpriteBatch batch;
+	private MainGameScreen gameScreen;
+	private MainMenuScreen menuScreen;
 	
 	@Override
-	public void create () {
+	public void create() {
+		batch = new SpriteBatch();
+		gameScreen = new MainGameScreen(this);
+		menuScreen = new MainMenuScreen(this);
+		this.setScreen(menuScreen);
 	}
 
 	@Override
-	public void render () {
-		ScreenUtils.clear(1, 1, 1, 1);
+	public void render() {
+		super.render();
 	}
 	
 	@Override
-	public void dispose () {
+	public void dispose() {
+		batch.dispose();
+	}
+	
+	public SpriteBatch getBatch()
+	{
+		return this.batch;
 	}
 }
