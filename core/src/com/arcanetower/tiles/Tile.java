@@ -8,6 +8,11 @@ public class Tile extends Image {
 	private Point tileID;
 	private boolean isPath;
 	
+	public Tile(TextureRegion region)
+	{
+		super(region);
+	}
+	
 	public Tile(TextureRegion region, boolean isPath)
 	{
 		super(region);
@@ -23,6 +28,16 @@ public class Tile extends Image {
 	public Point getCoordinates()
 	{
 		return this.tileID;
+	}
+	
+	public void setIsPath()
+	{
+		this.isPath = true;
+	}
+	
+	public boolean getIsPath()
+	{
+		return this.isPath;
 	}
 
 }
