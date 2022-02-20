@@ -10,38 +10,58 @@ import java.util.Set;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.tiles.Point;
 import com.arcanetower.tiles.Tile;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
 public class TerrainGenerator {
 	
 	private Stage stage;
-	private Texture textureGrass;
-	private TextureRegion textureRegionGrass;
-	
-	private Texture texturePath;
-	private TextureRegion textureRegionPath;
-	
 	private HashMap<Integer, Tile> gridMap;
 	
-	private ArrayList<Tile> tiles;
-	
 	private int lastId;
-	private int endTileId;
 	private boolean stopGeneration;
+	
+	private int startX;
+	private int startY;
+	
+	private Drawable grassTile;
+	private Drawable pathTile;
+	
+	private final Image grassHighlight;
+	private final Image pathHighlight;
+	
+	private boolean hidePath;
 	
 	public TerrainGenerator(Stage stage)
 	{
 		this.stage = stage;
 		this.gridMap = new HashMap<Integer, Tile>();
+		this.grassTile = new TextureRegionDrawable(new Texture("grassNoBorder.png"));
+		this.pathTile = new TextureRegionDrawable(new Texture("pathNoBorder.png"));
+		
+		this.grassHighlight = new Image(new Texture("grassHovered.png"));
+		this.grassHighlight.setVisible(false);
+		
+		this.pathHighlight = new Image(new Texture("pathHovered.png"));
+		this.pathHighlight.setVisible(false);
+		
 		stopGeneration = false;
 		generateStartingTerrain();
 		generatePath();
@@ -54,17 +74,10 @@ public class TerrainGenerator {
 		Random rand = new Random();
 		
 		int randomStart = rand.nextInt((13 - 1) + 1) + 1;
-		int randomEnd = rand.nextInt((13 - 1) + 1) + 1;
 		
-		textureGrass = new Texture("grass.png");
-		textureRegionGrass = new TextureRegion(textureGrass, 0, 0, 32, 32);
-		
-		texturePath = new Texture("path.png");
-		textureRegionPath = new TextureRegion(texturePath, 0, 0, 32, 32);
-		
-		Tile tile = new Tile(textureRegionPath, true);
-		tile.setPosition(0, 5 * 32);
-		tile.setCoordinates(0, 5);
+		final Tile tile = new Tile(pathTile, true);
+		tile.setPosition(0, randomStart * 32);
+		tile.setCoordinates(0, randomStart);
 		final Point tmp = tile.getCoordinates();
 		final boolean tmpBool = tile.getIsPath();
 		tile.addListener(new ClickListener() {
@@ -74,43 +87,79 @@ public class TerrainGenerator {
                  System.out.println("y = " + tmp.getY());
                  System.out.println("IsPath = " + tmpBool);
              }
+            
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            	// TODO Auto-generated method stub
+            	if(pointer == -1)
+            	{
+            		tile.addActor(pathHighlight);
+            		pathHighlight.setVisible(true);
+            	}
+            	
+            }
+            
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            	// TODO Auto-generated method stub
+            	if(pointer != -1)
+            	{
+            		pathHighlight.setVisible(false);
+            		pathHighlight.remove();
+            		stage.draw();
+            	} else
+            		grassHighlight.setVisible(false);
+            	
+            }
          });
 		stage.addActor(tile);
-		gridMap.put(5, tile);
+		gridMap.put(randomStart, tile);
 		
-		Tile tileStart = new Tile(textureRegionPath, true);
+		startX = 0;
+		startY = randomStart * 32;
+		
+		final Tile tileStart = new Tile(pathTile, true);
 		tileStart.setPosition(1 * 32, tile.getCoordinates().getY() * 32);
 		tileStart.setCoordinates(1, tile.getCoordinates().getY());
 		final Point tmpStart = tileStart.getCoordinates();
 		final boolean tmpBoolStart = tileStart.getIsPath();
-		tile.addListener(new ClickListener() {
+		tileStart.addListener(new ClickListener() {
+			@Override
             public void clicked(InputEvent event, float x, float y) {
-                 System.out.println("clicked path");
-                 System.out.println("x = " + tmpStart.getX());
-                 System.out.println("y = " + tmpStart.getY());
-                 System.out.println("IsPath = " + tmpBoolStart);
+            	System.out.println("clicked path");
+                System.out.println("x = " + tmpStart.getX());
+                System.out.println("y = " + tmpStart.getY());
+                System.out.println("IsPath = " + tmpBoolStart);
+                 
              }
+			@Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            	// TODO Auto-generated method stub
+            	if(pointer == -1)
+            	{
+            		tileStart.addActor(pathHighlight);
+            		pathHighlight.setVisible(true);
+            	}
+            	
+            	
+            }
+            
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            	// TODO Auto-generated method stub
+            	if(pointer != -1)
+            	{
+            		pathHighlight.setVisible(false);
+            		pathHighlight.remove();
+            	} else
+            		grassHighlight.setVisible(false);
+            	
+            }
+            
          });
 		stage.addActor(tileStart);
-		gridMap.put(5 + 15, tileStart);
-		lastId = 5 + 15;
-		
-//		Tile tileEnd = new Tile(textureRegionPath, true);
-//		tileEnd.setPosition(24 * 32, randomEnd * 32);
-//		tileEnd.setCoordinates(24, randomEnd);
-//		final Point tmpEnd = tileEnd.getCoordinates();
-//		final boolean tmpBoolEnd = tileEnd.getIsPath();
-//		tileEnd.addListener(new ClickListener() {
-//            public void clicked(InputEvent event, float x, float y) {
-//                 System.out.println("clicked path");
-//                 System.out.println("x = " + tmpEnd.getX());
-//                 System.out.println("y = " + tmpEnd.getY());
-//                 System.out.println("IsPath = " + tmpBoolEnd);
-//             }
-//         });
-//		stage.addActor(tileEnd);
-//		gridMap.put(24 * 15 + randomEnd, tileEnd);
-//		endTileId = 24 * 15 + randomEnd;
+		gridMap.put(randomStart + 15, tileStart);
+		lastId = randomStart + 15;
 		
 		return tileStart;
 	}
@@ -122,7 +171,7 @@ public class TerrainGenerator {
 		for(int i = 0; i < 100; ++i)
 		{
 		
-			Tile pathNew = new Tile(textureRegionPath, true);
+			final Tile pathNew = new Tile(pathTile, true);
 			
 			Tile pathOld = gridMap.get(lastId);
 			int oldX = pathOld.getCoordinates().getX();
@@ -152,6 +201,30 @@ public class TerrainGenerator {
 	                        System.out.println("y = " + tmp.getY());
 	                        System.out.println("IsPath = " + tmpBool);
 	                    }
+	                   
+	                   @Override
+	                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer == -1)
+	                    	{
+	                    		pathNew.addActor(pathHighlight);
+	                    		pathHighlight.setVisible(true);
+	                    	}
+	                    	
+	                    	
+	                    }
+	                    
+	                    @Override
+	                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer != -1)
+	                    	{
+	                    		pathHighlight.setVisible(false);
+	                    		pathHighlight.remove();
+	                    	} else
+	                    		grassHighlight.setVisible(false);
+	                    	
+	                    }
 	                });
 	                stage.addActor(pathNew);
 	                gridMap.put(lastId + 1, pathNew);
@@ -171,6 +244,30 @@ public class TerrainGenerator {
 	                        System.out.println("x = " + tmpEast.getX());
 	                        System.out.println("y = " + tmpEast.getY());
 	                        System.out.println("IsPath = " + tmpBoolEast);
+	                    }
+	                   
+	                   @Override
+	                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer == -1)
+	                    	{
+	                    		pathNew.addActor(pathHighlight);
+	                    		pathHighlight.setVisible(true);
+	                    	}
+	                    	
+	                    	
+	                    }
+	                    
+	                    @Override
+	                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer != -1)
+	                    	{
+	                    		pathHighlight.setVisible(false);
+	                    		pathHighlight.remove();
+	                    	} else
+	                    		grassHighlight.setVisible(false);
+	                    	
 	                    }
 	                });
 	            	
@@ -194,6 +291,29 @@ public class TerrainGenerator {
 	                        System.out.println("x = " + tmpSouth.getX());
 	                        System.out.println("y = " + tmpSouth.getY());
 	                        System.out.println("IsPath = " + tmpBoolSouth);
+	                    }
+	                   
+	                   @Override
+	                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer == -1)
+	                    	{
+	                    		pathNew.addActor(pathHighlight);
+	                    		pathHighlight.setVisible(true);
+	                    	}
+	                    	
+	                    }
+	                    
+	                    @Override
+	                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+	                    	// TODO Auto-generated method stub
+	                    	if(pointer != -1)
+	                    	{
+	                    		pathHighlight.setVisible(false);
+	                    		pathHighlight.remove();
+	                    	} else
+	                    		grassHighlight.setVisible(false);
+	                    	
 	                    }
 	                });
 	                stage.addActor(pathNew);
@@ -293,32 +413,32 @@ public class TerrainGenerator {
 				if(y == 13)
 				{
 					int newDirection = random.nextInt((2 - 1) + 1) + 1;
-					if(newDirection == 1)
-						System.out.println("Direction east");
-					else
-						System.out.println("Direction south");
+//					if(newDirection == 1)
+//						System.out.println("Direction east");
+//					else
+//						System.out.println("Direction south");
 					generateSecondNorth = true;
 					return newDirection;
 				} else
-					System.out.println("Direction north");
+//					System.out.println("Direction north");
 				generateSecondNorth = true;
 				break;
 			case 1:
-				System.out.println("Direction east");
+//				System.out.println("Direction east");
 				generateSecondEast = true;
 				return randomNum;
 			case 2:
 				if(y == 1)
 				{
 					int newDirection = random.nextInt((1 - 0) + 1) + 0;
-					if(newDirection == 1)
-						System.out.println("Direction east");
-					else
-						System.out.println("Direction north");
+//					if(newDirection == 1)
+//						System.out.println("Direction east");
+//					else
+//						System.out.println("Direction north");
 					generateSecondSouth = true;
 					return newDirection;
 				} else
-					System.out.println("Direction south");
+//					System.out.println("Direction south");
 				generateSecondSouth = true;
 				break;
 		}
@@ -328,21 +448,23 @@ public class TerrainGenerator {
 	
 	private void generateGrass()
 	{
+		
 		int tileCount = 0;
 		for (int x = 0; x * 32 < ArcaneTower.SCREEN_WIDTH; ++x)
 		{
-			for (int y = 0; y * 32 < ArcaneTower.SCREEN_HEIGTH; ++y)
+			for (int y = 0; y * 32 < ArcaneTower.SCREEN_HEIGTH - 2 * 32; ++y)
 			{
 				if(gridMap.keySet().contains(tileCount))
 				{
 					++tileCount;
 					continue;
 				}
-				Tile tile = new Tile(textureRegionGrass, false);
+				final Tile tile = new Tile(grassTile, false);
 				tile.setPosition(x * 32, y * 32);
         		tile.setCoordinates(x, y);
         		final Point tmp = tile.getCoordinates();
         		final boolean tmpBool = tile.getIsPath();
+        		final int tmpTileCount = tileCount;
         		tile.addListener(new ClickListener() {
                     public void clicked(InputEvent event, float x, float y) {
                          System.out.println("clicked grass");
@@ -350,12 +472,53 @@ public class TerrainGenerator {
                          System.out.println("y = " + tmp.getY());
                          System.out.println("IsPath = " + tmpBool);
                      }
+                    
+                    @Override
+                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    	// TODO Auto-generated method stub
+                    	if(pointer == -1)
+                    	{
+                    		tile.addActor(grassHighlight);
+                        	grassHighlight.setVisible(true);
+                    	}
+                    	
+                    	
+                    }
+                    
+                    @Override
+                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    	// TODO Auto-generated method stub
+                    	if(pointer != -1)
+                    	{
+                    		grassHighlight.setVisible(false);
+                            grassHighlight.remove();
+                    	}
+                    	if(pointer == -1)
+                    	{
+                    		pathHighlight.setVisible(false);
+                    	}
+                    	
+                    }
                  });
         		stage.addActor(tile);
         		gridMap.put(tileCount, tile);
         		++tileCount;
 			}
 		}
-          
+	}
+	
+	public int getStartX()
+	{
+		return this.startX;
+	}
+	
+	public int getStartY()
+	{
+		return this.startY;
+	}
+	
+	public boolean getHidePath()
+	{
+		return this.hidePath;
 	}
 }

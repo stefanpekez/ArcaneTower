@@ -52,9 +52,9 @@ public class MainMenuScreen implements Screen{
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
-		camera = new OrthographicCamera(800, 480);
+		camera = new OrthographicCamera(ArcaneTower.SCREEN_WIDTH, ArcaneTower.SCREEN_HEIGTH);
 		camera.setToOrtho(true);
-		camera.position.set(800 / 2, 480 / 2, 0);
+		camera.position.set(ArcaneTower.SCREEN_WIDTH / 2, ArcaneTower.SCREEN_HEIGTH / 2, 0);
 		camera.update();
 	}
 
@@ -68,10 +68,6 @@ public class MainMenuScreen implements Screen{
 		game.getBatch().begin();
 		
 		int x = ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2;
-		
-		// Get current y position of mouse pointer
-//		if(Gdx.input.getY() < 280)
-//			System.out.println(Gdx.input.getY());
 		
 		if(Gdx.input.getX() > x && Gdx.input.getX() < x + BUTTON_WIDTH 
 				&& Gdx.input.getY() < PLAY_BUTTON_Y_POS + BUTTON_HEIGHT && Gdx.input.getY() > PLAY_BUTTON_Y_POS)

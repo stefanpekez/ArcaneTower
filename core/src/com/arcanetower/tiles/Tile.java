@@ -2,20 +2,23 @@ package com.arcanetower.tiles;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
-public class Tile extends Image {
+public class Tile extends ImageButton {
 	
 	private Point tileID;
 	private boolean isPath;
 	
-	public Tile(TextureRegion region)
+	public Tile(Drawable drawable)
 	{
-		super(region);
+		super(drawable);
 	}
 	
-	public Tile(TextureRegion region, boolean isPath)
+	public Tile(Drawable drawable, boolean isPath)
 	{
-		super(region);
+		super(drawable);
 		this.tileID = new Point();
 		this.isPath = isPath;
 	}
