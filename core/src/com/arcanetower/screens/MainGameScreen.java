@@ -2,6 +2,8 @@ package com.arcanetower.screens;
 
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
 import com.arcanetower.enemies.BasicEnemy;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.terrain.TerrainGenerator;
@@ -21,8 +23,10 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainGameScreen implements Screen {
@@ -39,6 +43,10 @@ public class MainGameScreen implements Screen {
 	private TerrainGenerator generator;
 	
 	private Image infoBar;
+	private InfoLabels infoLabels;
+	
+	private Dialog dialog;
+	private boolean isFirst = true;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -67,7 +75,17 @@ public class MainGameScreen implements Screen {
 		
 		stageUI.addActor(infoBar);
 		
-		InfoLabels infoLabels = new InfoLabels(stageUI, generator.getStartX(), generator.getStartY());
+		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch());
+		
+//		Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
+//		
+//		dialog = new Dialog("Game over", skin, "dialog")
+//		{
+//			public void result(Object obj) {
+//		        System.out.println("result "+ obj);
+//		    }
+//		};
+//		dialog.text("Game over");
 		
 	}
 

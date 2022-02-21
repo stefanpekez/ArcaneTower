@@ -1,39 +1,27 @@
 package com.arcanetower.terrain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Set;
 
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.tiles.Point;
 import com.arcanetower.tiles.Tile;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
 public class TerrainGenerator {
 	
 	private Stage stage;
 	private HashMap<Integer, Tile> gridMap;
+	private ArrayList<Integer> pathID;
 	
 	private int lastId;
 	private boolean stopGeneration;
@@ -62,10 +50,13 @@ public class TerrainGenerator {
 		this.pathHighlight = new Image(new Texture("pathHovered.png"));
 		this.pathHighlight.setVisible(false);
 		
+		this.pathID = new ArrayList<Integer>();
+		
 		stopGeneration = false;
 		generateStartingTerrain();
 		generatePath();
 		generateGrass();
+//		writePathID();
 //		writeTiles();
 	}
 	
@@ -80,9 +71,10 @@ public class TerrainGenerator {
 		tile.setCoordinates(0, randomStart);
 		final Point tmp = tile.getCoordinates();
 		final boolean tmpBool = tile.getIsPath();
+		final int tmpCount = randomStart;
 		tile.addListener(new ClickListener() {
             public void clicked(InputEvent event, float x, float y) {
-                 System.out.println("clicked path");
+                 System.out.println("clicked path" + tmpCount);
                  System.out.println("x = " + tmp.getX());
                  System.out.println("y = " + tmp.getY());
                  System.out.println("IsPath = " + tmpBool);
@@ -114,6 +106,8 @@ public class TerrainGenerator {
          });
 		stage.addActor(tile);
 		gridMap.put(randomStart, tile);
+		tile.setTileNum(randomStart);
+		pathID.add(randomStart);
 		
 		startX = 0;
 		startY = randomStart * 32;
@@ -123,10 +117,11 @@ public class TerrainGenerator {
 		tileStart.setCoordinates(1, tile.getCoordinates().getY());
 		final Point tmpStart = tileStart.getCoordinates();
 		final boolean tmpBoolStart = tileStart.getIsPath();
+		final int tmpCountStart = randomStart + 15;
 		tileStart.addListener(new ClickListener() {
 			@Override
             public void clicked(InputEvent event, float x, float y) {
-            	System.out.println("clicked path");
+            	System.out.println("clicked path" + tmpCountStart);
                 System.out.println("x = " + tmpStart.getX());
                 System.out.println("y = " + tmpStart.getY());
                 System.out.println("IsPath = " + tmpBoolStart);
@@ -159,6 +154,8 @@ public class TerrainGenerator {
          });
 		stage.addActor(tileStart);
 		gridMap.put(randomStart + 15, tileStart);
+		pathID.add(randomStart + 15);
+		tileStart.setTileNum(randomStart + 15);
 		lastId = randomStart + 15;
 		
 		return tileStart;
@@ -194,9 +191,10 @@ public class TerrainGenerator {
 					pathNew.setCoordinates(oldX, oldY + 1);
 	            	final Point tmp = pathNew.getCoordinates();
 	            	final boolean tmpBool = pathNew.getIsPath();
+	            	final int tmpCountNorth = lastId + 1;
 	            	pathNew.addListener(new ClickListener() {
 	                   public void clicked(InputEvent event, float x, float y) {
-	                        System.out.println("clicked path");
+	                        System.out.println("clicked path" + tmpCountNorth);
 	                        System.out.println("x = " + tmp.getX());
 	                        System.out.println("y = " + tmp.getY());
 	                        System.out.println("IsPath = " + tmpBool);
@@ -228,6 +226,8 @@ public class TerrainGenerator {
 	                });
 	                stage.addActor(pathNew);
 	                gridMap.put(lastId + 1, pathNew);
+	                pathID.add(lastId + 1);
+	                pathNew.setTileNum(lastId + 1);
 	                lastId = lastId + 1;
 					break;
 				case 1:
@@ -238,9 +238,10 @@ public class TerrainGenerator {
 					pathNew.setCoordinates((oldX + 1), oldY);
 	            	final Point tmpEast = pathNew.getCoordinates();
 	            	final boolean tmpBoolEast = pathNew.getIsPath();
+	            	final int tmpCountEast = lastId + 15;
 	            	pathNew.addListener(new ClickListener() {
 	                   public void clicked(InputEvent event, float x, float y) {
-	                        System.out.println("clicked path");
+	                        System.out.println("clicked path" + tmpCountEast);
 	                        System.out.println("x = " + tmpEast.getX());
 	                        System.out.println("y = " + tmpEast.getY());
 	                        System.out.println("IsPath = " + tmpBoolEast);
@@ -273,6 +274,8 @@ public class TerrainGenerator {
 	            	
 	                stage.addActor(pathNew);
 	                gridMap.put(lastId + 15, pathNew);
+	                pathID.add(lastId + 15);
+	                pathNew.setTileNum(lastId + 15);
 	                lastId = lastId + 15;
 					break;
 				case 2:
@@ -285,9 +288,10 @@ public class TerrainGenerator {
 					pathNew.setCoordinates(oldX, oldY - 1);
 	            	final Point tmpSouth = pathNew.getCoordinates();
 	            	final boolean tmpBoolSouth = pathNew.getIsPath();
+	            	final int tmpCountSouth = lastId - 1;
 	            	pathNew.addListener(new ClickListener() {
 	                   public void clicked(InputEvent event, float x, float y) {
-	                        System.out.println("clicked path");
+	                        System.out.println("clicked path" + tmpCountSouth);
 	                        System.out.println("x = " + tmpSouth.getX());
 	                        System.out.println("y = " + tmpSouth.getY());
 	                        System.out.println("IsPath = " + tmpBoolSouth);
@@ -318,13 +322,12 @@ public class TerrainGenerator {
 	                });
 	                stage.addActor(pathNew);
 	                gridMap.put(lastId - 1, pathNew);
+	                pathID.add(lastId - 1);
+	                pathNew.setTileNum(lastId - 1);
 	                lastId = lastId - 1;
 					break;
 			}
 		}
-		
-		
-		
 	}
 	
 	public void writeTiles()
@@ -464,10 +467,10 @@ public class TerrainGenerator {
         		tile.setCoordinates(x, y);
         		final Point tmp = tile.getCoordinates();
         		final boolean tmpBool = tile.getIsPath();
-        		final int tmpTileCount = tileCount;
+        		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
                     public void clicked(InputEvent event, float x, float y) {
-                         System.out.println("clicked grass");
+                         System.out.println("clicked grass" + tmpCount);
                          System.out.println("x = " + tmp.getX());
                          System.out.println("y = " + tmp.getY());
                          System.out.println("IsPath = " + tmpBool);
@@ -481,8 +484,6 @@ public class TerrainGenerator {
                     		tile.addActor(grassHighlight);
                         	grassHighlight.setVisible(true);
                     	}
-                    	
-                    	
                     }
                     
                     @Override
@@ -492,16 +493,13 @@ public class TerrainGenerator {
                     	{
                     		grassHighlight.setVisible(false);
                             grassHighlight.remove();
-                    	}
-                    	if(pointer == -1)
-                    	{
+                    	} else
                     		pathHighlight.setVisible(false);
-                    	}
-                    	
                     }
                  });
         		stage.addActor(tile);
         		gridMap.put(tileCount, tile);
+        		tile.setTileNum(tileCount);
         		++tileCount;
 			}
 		}
@@ -520,5 +518,24 @@ public class TerrainGenerator {
 	public boolean getHidePath()
 	{
 		return this.hidePath;
+	}
+	
+	
+	public ArrayList<Integer> getListOfPathIds()
+	{
+		return this.pathID;
+	}
+	
+	private void writePathID()
+	{
+		for(Integer i: this.pathID)
+		{
+			System.out.println(i);
+		}
+	}
+	
+	public HashMap<Integer, Tile> getGridMap()
+	{
+		return this.gridMap;
 	}
 }
