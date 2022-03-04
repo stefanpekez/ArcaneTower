@@ -8,14 +8,24 @@ import java.util.Random;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.tiles.Point;
 import com.arcanetower.tiles.Tile;
+import com.arcanetower.towers.BallistaTower;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.badlogic.gdx.utils.Array;
 
 public class TerrainGenerator {
 	
@@ -35,7 +45,16 @@ public class TerrainGenerator {
 	private final Image grassHighlight;
 	private final Image pathHighlight;
 	
-	private boolean hidePath;
+	private boolean isClicked = false;
+	
+	private final ImageButton NW;
+	private final Image NE;
+	private final Image SW;
+	private final Image SE;
+	
+	private Drawable drawableB;
+	
+	private ButtonGroup<ImageButton> buttonGroup;
 	
 	public TerrainGenerator(Stage stage)
 	{
@@ -50,7 +69,32 @@ public class TerrainGenerator {
 		this.pathHighlight = new Image(new Texture("pathHovered.png"));
 		this.pathHighlight.setVisible(false);
 		
+		Sprite spriteNW = new Sprite(new Texture("ballista.png"));
+		Sprite spriteNE = new Sprite(new Texture("fire.png"));
+		Sprite spriteSW = new Sprite(new Texture("fire.png"));
+		Sprite spriteSE = new Sprite(new Texture("fire.png"));
+		
+//		drawableB = new TextureRegionDrawable(new Texture("ballistaTower.png"));
+		
+		this.NW = new ImageButton(new TextureRegionDrawable(new Texture("ballista.png")));
+		
+		this.NE = new Image(spriteNE);
+		spriteNE.flip(true, false);
+		
+		this.SW = new Image(spriteSW);
+		spriteSW.flip(false, true);
+		
+		this.SE = new Image(spriteSE);
+		spriteSE.flip(false, true);
+		spriteSE.flip(true, false);
+		
 		this.pathID = new ArrayList<Integer>();
+		
+		this.buttonGroup = new ButtonGroup<ImageButton>();
+		buttonGroup.setMaxCheckCount(1);
+		buttonGroup.setMinCheckCount(0);
+		buttonGroup.setUncheckLast(true);
+		buttonGroup.uncheckAll();
 		
 		stopGeneration = false;
 		generateStartingTerrain();
@@ -463,6 +507,7 @@ public class TerrainGenerator {
 					continue;
 				}
 				final Tile tile = new Tile(grassTile, false);
+				buttonGroup.add(tile);
 				tile.setPosition(x * 32, y * 32);
         		tile.setCoordinates(x, y);
         		final Point tmp = tile.getCoordinates();
@@ -470,10 +515,56 @@ public class TerrainGenerator {
         		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
                     public void clicked(InputEvent event, float x, float y) {
-                         System.out.println("clicked grass" + tmpCount);
-                         System.out.println("x = " + tmp.getX());
-                         System.out.println("y = " + tmp.getY());
-                         System.out.println("IsPath = " + tmpBool);
+//                    	for(Integer i: gridMap.keySet())
+//                    	{
+//                    		if(i == tile.getTileNum())
+//                    		{
+//                    			continue;
+//                    		}
+//                    		gridMap.get(i).setTouchable(Touchable.disabled);
+//                    	}
+//                    	 NW.setVisible(true);
+                    	tile.setChecked(true);
+//                    	NW.remove();
+//                         System.out.println("clicked grass" + tmpCount);
+//                         System.out.println("x = " + tile.getX());
+//                         System.out.println("y = " + tile.getY());
+//                         System.out.println("Tile width: " + tile.getWidth());
+//                         System.out.println("Tile height: " + tile.getHeight());
+//                         System.out.println("IsPath = " + tmpBool);
+                    	 
+//                    	 tile.setChecked(true);
+//                    	 NW.setChecked(false);
+                    	 
+                         NW.setPosition(tile.getX() - 40, tile.getY() + 32);
+//                         System.out.println(tile.isChecked());
+                         if(tile.isChecked())
+                         {
+                        	 System.out.println("unutra");
+                        	 NW.addListener(new ClickListener(){
+                            	 public void clicked(InputEvent event, float x, float y)
+                            	 {
+//                            		 if(tile.isChecked())
+//                            		 {
+//                            			 stage.addActor(new BallistaTower(tile.getX(), tile.getY()));
+//                            		 }
+                                	 System.out.println("placed at x = " + tile.getX() + " and y = " + tile.getY());
+//                                	 NW.setVisible(false);
+//                                	 
+//                                	 for(Integer i: gridMap.keySet())
+//                                 	 {
+//                     					if(i == tile.getTileNum())
+//                                 		{
+//                                 			continue;
+//                                 		}
+//                     					gridMap.get(i).setTouchable(Touchable.enabled);
+//                                 	 }
+                            	 }
+                             });
+                         }
+//                         NW.removeListener();
+                         tile.setChecked(false);
+                         stage.addActor(NW);
                      }
                     
                     @Override
@@ -495,8 +586,27 @@ public class TerrainGenerator {
                             grassHighlight.remove();
                     	} else
                     		pathHighlight.setVisible(false);
+                    		
                     }
+                    	
                  });
+        		
+        		tile.addListener(new ClickListener(Buttons.RIGHT) {
+        			@Override
+        			public void clicked(InputEvent event, float x, float y) {
+        				// TODO Auto-generated method stub
+//        				for(Integer i: gridMap.keySet())
+//                    	{
+//        					if(i == tile.getTileNum())
+//                    		{
+//                    			continue;
+//                    		}
+//        					gridMap.get(i).setTouchable(Touchable.enabled);
+//                    	}
+        				tile.removeActor(NW);
+        			}
+        		});
+        		buttonGroup.add(tile);
         		stage.addActor(tile);
         		gridMap.put(tileCount, tile);
         		tile.setTileNum(tileCount);
@@ -513,11 +623,6 @@ public class TerrainGenerator {
 	public int getStartY()
 	{
 		return this.startY;
-	}
-	
-	public boolean getHidePath()
-	{
-		return this.hidePath;
 	}
 	
 	

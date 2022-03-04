@@ -11,10 +11,12 @@ public class Tile extends ImageButton {
 	private Point tileID;
 	private boolean isPath;
 	private int tileNum;
+	private boolean isClicked;
 	
 	public Tile(Drawable drawable)
 	{
 		super(drawable);
+		this.isClicked = false;
 	}
 	
 	public Tile(Drawable drawable, boolean isPath)
@@ -22,6 +24,7 @@ public class Tile extends ImageButton {
 		super(drawable);
 		this.tileID = new Point();
 		this.isPath = isPath;
+		this.isClicked = false;
 	}
 	
 	public void setCoordinates(int x, int y)
@@ -52,6 +55,16 @@ public class Tile extends ImageButton {
 	public int getTileNum()
 	{
 		return this.tileNum;
+	}
+	
+	public void setIsClicked(boolean isClicked)
+	{
+		this.isClicked = isClicked;
+	}
+	
+	public boolean getIsClicked()
+	{
+		return this.isClicked;
 	}
 
 }
