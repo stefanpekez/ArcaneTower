@@ -1,16 +1,11 @@
 package com.arcanetower.screens;
 
-import java.util.Random;
+import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
-import com.arcanetower.enemies.BasicEnemy;
-import com.arcanetower.enemies.NextWave;
+import com.arcanetower.enemies.Goblin;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.terrain.TerrainGenerator;
-import com.arcanetower.tiles.Point;
-import com.arcanetower.tiles.Tile;
-import com.arcanetower.ui.CreateFont;
+import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.ui.TowerPanel;
 import com.badlogic.gdx.Gdx;
@@ -20,20 +15,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class MainGameScreen implements Screen {
 
@@ -53,12 +39,12 @@ public class MainGameScreen implements Screen {
 	
 	private Image corner;
 	
-	private Image towerBar;
 	private TowerPanel towerPanel;
 	
 	private Group groupTowers;
 	
 	private int gameSpeed;
+	private ArrayList<Goblin> goblins;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -77,7 +63,7 @@ public class MainGameScreen implements Screen {
 		stage = new Stage();
 		stageUI = new Stage();
 		towerPanel = new TowerPanel(stageUI, this);
-		generator = new TerrainGenerator(stage, towerPanel, this);
+		generator = new TerrainGenerator(stage, towerPanel, this, stageUI);
 		
 		infoBar = new Image(new Texture("infobarNB.png"));
 		infoBar.setPosition(0, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
@@ -103,7 +89,6 @@ public class MainGameScreen implements Screen {
 		groupTowers.addActor(towerPanel);
 		groupTowers.addActor(towerPanel.getBallista());
 		groupTowers.setZIndex(2);
-		
 	}
 
 	@Override
@@ -114,6 +99,11 @@ public class MainGameScreen implements Screen {
 			//PAUSE
 			case 0:
 				stage.act(delta);
+				
+				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
+				{
+					bt.stopTimer();
+				}
 				Gdx.gl.glClearColor(1, 1, 1, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 				
@@ -125,11 +115,20 @@ public class MainGameScreen implements Screen {
 				stage.act(delta);
 				stageUI.act(delta);
 				
+				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
+				{
+					bt.resumeTimer();
+				}
+				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 				
+				if(infoLabels.getGoblins().size() > 0)
+					generator.setGoblins(infoLabels.getGoblins());
+				
 				stage.draw();
 				stageUI.draw();
+				
 				break;
 		}
 		
@@ -168,6 +167,11 @@ public class MainGameScreen implements Screen {
 	public void setGameSpeed(int speed)
 	{
 		this.gameSpeed = speed;
+	}
+	
+	public int getGameSpeed()
+	{
+		return this.gameSpeed;
 	}
 
 }

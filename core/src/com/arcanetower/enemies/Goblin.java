@@ -1,12 +1,14 @@
 package com.arcanetower.enemies;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class Goblin extends Image{
 	
 	private int health;
 	private boolean isFirst;
+	private Rectangle bounds;
 //	private int startX;
 //	private int startY;
 	
@@ -19,6 +21,7 @@ public class Goblin extends Image{
 //		this.startX = startX;
 //		this.startY = startY;
 		this.health = 10;
+		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
 	}
 	
 	public boolean getIsFirst()
@@ -29,5 +32,20 @@ public class Goblin extends Image{
 	public void setIsFirst(boolean first)
 	{
 		this.isFirst = first;
+	}
+	
+	public Rectangle getBounds()
+	{
+		return this.bounds;
+	}
+	
+	public void takeDamage(int dmg)
+	{
+		this.health = this.health - dmg;
+	}
+	
+	public int getHealth()
+	{
+		return this.health;
 	}
 }

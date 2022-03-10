@@ -1,5 +1,8 @@
 package com.arcanetower.ui;
 
+import java.util.ArrayList;
+
+import com.arcanetower.enemies.Goblin;
 import com.arcanetower.enemies.NextWave;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
@@ -54,6 +57,7 @@ public class InfoLabels {
 	private ImageButton anim;
 	
 	private MainGameScreen screen;
+	private ArrayList<Goblin> goblins;
 	
 	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, MainGameScreen mainGameScreen, Stage stage)
 	{
@@ -90,6 +94,7 @@ public class InfoLabels {
 		this.stage = stage;
 		
 		this.screen = mainGameScreen;
+		this.goblins = new ArrayList<Goblin>();
 		
 		this.nextWave = new NextWave(stageUI, generatorTerrain, remainingLives, waveCounter);
 		
@@ -212,6 +217,11 @@ public class InfoLabels {
 	public Label getRemainingLives()
 	{
 		return this.remainingLives;
+	}
+	
+	public ArrayList<Goblin> getGoblins()
+	{
+		return this.nextWave.getGoblins();
 	}
 	
 }

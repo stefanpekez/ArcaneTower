@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 
 public class NextWave {
 	
@@ -70,7 +71,18 @@ public class NextWave {
 			if(i == 0)
 			{
 				goblins.get(i).setIsFirst(true);
+				
 			}
+//			final int counter = i;
+//			Timer timer = new Timer();
+//			timer.scheduleTask(new Timer.Task() {
+//			    @Override
+//			    public void run() {
+//			    	System.out.println("x" + counter +":" + goblins.get(counter).getX());
+//			    	System.out.println("test:" + goblins.get(counter).getX());
+//			    }
+//			}, 0f, Gdx.graphics.getDeltaTime());
+			
 			goblins.get(i).setPosition(generatorTerrain.getStartX() - 32, generatorTerrain.getStartY());
 			groupEnemies.setZIndex(1);
 			groupEnemies.addActor(goblins.get(i));
@@ -79,24 +91,12 @@ public class NextWave {
 		
 	}
 	
-	public void startMoving()
-	{
-		for(int i = 0; i < goblins.size(); ++i)
-		{
-			if(i == 0)
-			{
-				goblins.get(i).setIsFirst(true);
-			}
-			GenerateMovement(goblins.get(i), goblins.get(i).getX(), goblins.get(i).getY(), i);
-		}
-	}
-	
 	public void GenerateMovement(final Goblin goblin, float x, float y, int delay)
 	{
 		sequenceAction = new SequenceAction();
 		if(!goblin.getIsFirst())
 		{
-			sequenceAction.addAction(Actions.delay(0.2f * delay));
+			sequenceAction.addAction(Actions.delay(0.5f * delay));
 		}
 		for(int i = 0; i < paths.size(); ++i)
 		{
@@ -105,7 +105,7 @@ public class NextWave {
 			destinationX = t.getX();
 			destinationY = t.getY();
 			
-			sequenceAction.addAction(Actions.moveBy(destinationX - x, destinationY - y, 0.2f));
+			sequenceAction.addAction(Actions.moveBy(destinationX - x, destinationY - y, 0.5f));
 			
 			x = x + destinationX - x;
 			y = y + destinationY - y;
@@ -134,6 +134,7 @@ public class NextWave {
 			}
 		}));
 		
+		
 		goblin.addAction(sequenceAction);
 	}
 	
@@ -145,5 +146,10 @@ public class NextWave {
 	public int getCurrentWave()
 	{
 		return this.currentWave;
+	}
+	
+	public ArrayList<Goblin> getGoblins()
+	{
+		return this.goblins;
 	}
 }

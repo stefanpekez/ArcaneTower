@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
+import com.arcanetower.enemies.Goblin;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.tiles.Point;
@@ -13,17 +14,27 @@ import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.towers.PlacedTowers;
 import com.arcanetower.towers.TowerButton;
 import com.arcanetower.ui.TowerPanel;
+import com.arcanetower.utilities.ArrowBallista;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
 public class TerrainGenerator {
@@ -52,7 +63,12 @@ public class TerrainGenerator {
 	
 	private MainGameScreen screen;
 	
-	public TerrainGenerator(Stage stage, TowerPanel towerPanel, MainGameScreen screen)
+	private ArrowBallista arrow;
+	private ArrayList<ArrowBallista> arrows;
+	private ArrayList<Goblin> goblins;
+	private Stage stageUI;
+	
+	public TerrainGenerator(Stage stage, TowerPanel towerPanel, MainGameScreen screen, Stage stageUI)
 	{
 		this.stage = stage;
 		this.gridMap = new HashMap<Integer, Tile>();
@@ -72,6 +88,8 @@ public class TerrainGenerator {
 		this.ballista = towerPanel.getBallista();
 		
 		this.screen = screen;
+		this.stageUI = stageUI;
+		this.goblins = new ArrayList<Goblin>();
 		
 		stopGeneration = false;
 		generateStartingTerrain();
@@ -473,23 +491,6 @@ public class TerrainGenerator {
         		final boolean tmpBool = tile.getIsPath();
         		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
-//                    public void clicked(InputEvent event, float x, float y) {
-//                         System.out.println("clicked grass" + tmpCount);
-//                         System.out.println("x = " + tmp.getX());
-//                         System.out.println("y = " + tmp.getY());
-//                         System.out.println("IsPath = " + tmpBool);
-//                         
-//                         System.out.println(TowerPanel.getInstance(stage).getBallista().isDisabled());
-//                         if(TowerPanel.getInstance(stage).getBallista().getIsClicked())
-//                         {
-//                        	 System.out.println("uso");
-//                         	 placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY()));
-//                        	 stage.addActor(placed.getPlacedTowers().get(0));
-//                         }
-//                         
-//                         
-//                         
-//                     }
                     
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -524,13 +525,13 @@ public class TerrainGenerator {
                         System.out.println("IsPath = " + tmpBool);
 						if(ballista.isDisabled())
 						{
-							System.out.println("usli");
-							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY()));
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), goblins));
 							System.out.println(placed.getPlacedTowers().size());
-							stage.addActor(placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1));
-							screen.setGameSpeed(1);
+							BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
 							Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
 							ballista.setDisabled(false);
+							screen.setGameSpeed(1);
+							stageUI.addActor(bt);
 						}
 					}
 				});
@@ -540,6 +541,11 @@ public class TerrainGenerator {
         		++tileCount;
 			}
 		}
+	}
+	
+	public ArrayList<ArrowBallista> getArrows()
+	{
+		return arrows;
 	}
 	
 	public int getStartX()
@@ -574,5 +580,15 @@ public class TerrainGenerator {
 	public HashMap<Integer, Tile> getGridMap()
 	{
 		return this.gridMap;
+	}
+	
+	public void setGoblins(ArrayList<Goblin> goblins)
+	{
+		this.goblins = goblins;
+	}
+	
+	public PlacedTowers getPlacedTowers()
+	{
+		return placed;
 	}
 }
