@@ -6,16 +6,25 @@ import java.util.HashMap;
 import java.util.Random;
 
 import com.arcanetower.game.ArcaneTower;
+import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.tiles.Point;
 import com.arcanetower.tiles.Tile;
+import com.arcanetower.towers.BallistaTower;
+import com.arcanetower.towers.PlacedTowers;
+import com.arcanetower.towers.TowerButton;
+import com.arcanetower.ui.TowerPanel;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
 public class TerrainGenerator {
 	
@@ -37,7 +46,13 @@ public class TerrainGenerator {
 	
 	private boolean hidePath;
 	
-	public TerrainGenerator(Stage stage)
+	private PlacedTowers placed;
+	
+	private TowerButton ballista;
+	
+	private MainGameScreen screen;
+	
+	public TerrainGenerator(Stage stage, TowerPanel towerPanel, MainGameScreen screen)
 	{
 		this.stage = stage;
 		this.gridMap = new HashMap<Integer, Tile>();
@@ -51,6 +66,12 @@ public class TerrainGenerator {
 		this.pathHighlight.setVisible(false);
 		
 		this.pathID = new ArrayList<Integer>();
+		
+		this.placed = new PlacedTowers();
+		
+		this.ballista = towerPanel.getBallista();
+		
+		this.screen = screen;
 		
 		stopGeneration = false;
 		generateStartingTerrain();
@@ -167,7 +188,6 @@ public class TerrainGenerator {
 		
 		for(int i = 0; i < 100; ++i)
 		{
-		
 			final Tile pathNew = new Tile(pathTile, true);
 			
 			Tile pathOld = gridMap.get(lastId);
@@ -175,6 +195,7 @@ public class TerrainGenerator {
 			int oldY = pathOld.getCoordinates().getY();
 			
 			int randomNum = generatePathDirection(oldX, oldY, rand);
+			
 			
 			if(stopGeneration)
 				return;
@@ -397,29 +418,12 @@ public class TerrainGenerator {
 			return 0;
 		}
 		
-//		if(x == 23)
-//		{
-//			Tile endTile = gridMap.get(endTileId);
-//			if(y < endTile.getCoordinates().getY())
-//			{
-//				return 0;
-//			} else if(y > endTile.getCoordinates().getY())
-//			{
-//				return 2;
-//			} else
-//				return 1;
-//		}
-		
 		switch(randomNum) 
 		{
 			case 0:
 				if(y == 13)
 				{
 					int newDirection = random.nextInt((2 - 1) + 1) + 1;
-//					if(newDirection == 1)
-//						System.out.println("Direction east");
-//					else
-//						System.out.println("Direction south");
 					generateSecondNorth = true;
 					return newDirection;
 				} else
@@ -453,7 +457,7 @@ public class TerrainGenerator {
 	{
 		
 		int tileCount = 0;
-		for (int x = 0; x * 32 < ArcaneTower.SCREEN_WIDTH; ++x)
+		for (int x = 0; x * 32 < ArcaneTower.SCREEN_WIDTH - 2 * 32; ++x)
 		{
 			for (int y = 0; y * 32 < ArcaneTower.SCREEN_HEIGTH - 2 * 32; ++y)
 			{
@@ -469,12 +473,23 @@ public class TerrainGenerator {
         		final boolean tmpBool = tile.getIsPath();
         		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
-                    public void clicked(InputEvent event, float x, float y) {
-                         System.out.println("clicked grass" + tmpCount);
-                         System.out.println("x = " + tmp.getX());
-                         System.out.println("y = " + tmp.getY());
-                         System.out.println("IsPath = " + tmpBool);
-                     }
+//                    public void clicked(InputEvent event, float x, float y) {
+//                         System.out.println("clicked grass" + tmpCount);
+//                         System.out.println("x = " + tmp.getX());
+//                         System.out.println("y = " + tmp.getY());
+//                         System.out.println("IsPath = " + tmpBool);
+//                         
+//                         System.out.println(TowerPanel.getInstance(stage).getBallista().isDisabled());
+//                         if(TowerPanel.getInstance(stage).getBallista().getIsClicked())
+//                         {
+//                        	 System.out.println("uso");
+//                         	 placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY()));
+//                        	 stage.addActor(placed.getPlacedTowers().get(0));
+//                         }
+//                         
+//                         
+//                         
+//                     }
                     
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -497,6 +512,28 @@ public class TerrainGenerator {
                     		pathHighlight.setVisible(false);
                     }
                  });
+        		
+        		tile.addListener(new ChangeListener() {
+					@Override
+					public void changed(ChangeEvent event, Actor actor) {
+						// TODO Auto-generated method stub
+						TowerPanel.getInstance(stage, screen).getBallista().setDisabled(false);
+						System.out.println("clicked grass" + tmpCount);
+                        System.out.println("x = " + tmp.getX());
+                        System.out.println("y = " + tmp.getY());
+                        System.out.println("IsPath = " + tmpBool);
+						if(ballista.isDisabled())
+						{
+							System.out.println("usli");
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY()));
+							System.out.println(placed.getPlacedTowers().size());
+							stage.addActor(placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1));
+							screen.setGameSpeed(1);
+							Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+							ballista.setDisabled(false);
+						}
+					}
+				});
         		stage.addActor(tile);
         		gridMap.put(tileCount, tile);
         		tile.setTileNum(tileCount);

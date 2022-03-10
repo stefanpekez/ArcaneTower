@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class ArcaneTower extends Game {
 	
-	public static final int SCREEN_WIDTH = 800;
+	public static final int SCREEN_WIDTH = 864;
 	public static final int SCREEN_HEIGTH = 544;
 	
 	private SpriteBatch batch;
