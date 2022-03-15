@@ -83,7 +83,7 @@ public class NextWave {
 			groupEnemies.addActor(goblins.get(i));
 			GenerateMovement(goblins.get(i), goblins.get(i).getX(), goblins.get(i).getY(), i);
 		}
-		
+		generatorEnemies.setCurrentWave(currentWave);
 	}
 	
 	public void GenerateMovement(final Goblin goblin, float x, float y, int delay)

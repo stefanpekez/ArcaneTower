@@ -26,6 +26,8 @@ public class TowerPanel extends Image{
 	private TextureRegionDrawable ballistaIcon;
 	private TowerButton ballista;
 	
+	private InfoLabels infoLabels;
+	
 	private Pixmap pm;
 	
 //	private Stage stage;
@@ -61,6 +63,9 @@ public class TowerPanel extends Image{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
+				if(infoLabels.getMoney() - 50 < 0)
+					return;
+				
 				Texture place = new Texture(Gdx.files.internal("ballistaRange.png"));
 				if (!place.getTextureData().isPrepared()) {
 					place.getTextureData().prepare();
@@ -91,5 +96,10 @@ public class TowerPanel extends Image{
 	public Pixmap getPixmap()
 	{
 		return this.pm;
+	}
+	
+	public void setInfoLabels(InfoLabels infoLabels)
+	{
+		this.infoLabels = infoLabels;
 	}
 }

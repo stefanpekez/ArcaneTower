@@ -8,6 +8,7 @@ import com.arcanetower.ui.TowerPanel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,23 +22,21 @@ public class MainGameScreen implements Screen {
 	float y;
 	
 	private ArcaneTower game;
-	
 	private OrthographicCamera camera;
-	
 	private Stage stage;
 	private Stage stageUI;
-	private TerrainGenerator generator;
 	
+	private TerrainGenerator generator;
 	private Image infoBar;
 	private InfoLabels infoLabels;
 	
 	private Image corner;
-	
 	private TowerPanel towerPanel;
-	
 	private Group groupTowers;
 	
 	private int gameSpeed;
+	
+	private Music gameMusic;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -65,6 +64,10 @@ public class MainGameScreen implements Screen {
 		
 		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch(), this, stage);
 		
+		towerPanel.setInfoLabels(infoLabels);
+		
+		generator.setInfoLabels(infoLabels);
+		
 		corner = new Image(new Texture(Gdx.files.internal("corner.png")));
 		corner.setPosition(ArcaneTower.SCREEN_WIDTH - 2 * 32, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
 		
@@ -76,12 +79,17 @@ public class MainGameScreen implements Screen {
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		
+		// Makes it so that the enemies go behind the tower panel
 		this.groupTowers = new Group();
 		stageUI.addActor(groupTowers);
 		
 		groupTowers.addActor(towerPanel);
 		groupTowers.addActor(towerPanel.getBallista());
 		groupTowers.setZIndex(2);
+		
+		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusic.ogg"));
+		gameMusic.setLooping(true);
+		gameMusic.play();
 	}
 
 	@Override
@@ -89,7 +97,7 @@ public class MainGameScreen implements Screen {
 		// TODO Auto-generated method stub
 		switch(gameSpeed)
 		{
-			//PAUSE
+			// PAUSE
 			case 0:
 				stage.act(delta);
 				
@@ -103,7 +111,7 @@ public class MainGameScreen implements Screen {
 				stage.draw();
 				stageUI.draw();
 				break;
-			//RUN
+			// RUN
 			case 1:
 				stage.act(delta);
 				stageUI.act(delta);
@@ -115,13 +123,31 @@ public class MainGameScreen implements Screen {
 				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				infoLabels.setEnemyAmount(infoLabels.getGoblins().size());
 				
 				if(infoLabels.getGoblins().size() > 0)
 					generator.setGoblins(infoLabels.getGoblins());
 				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
+				{
+					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+					{
+						
+					}
+					else
+					{
+						infoLabels.setWaveButton();
+					}
+					
+				}
+					
+				
 				stage.draw();
 				stageUI.draw();
 				
+				break;
+			// TODO: FASTER
+			case 2:
 				break;
 		}
 		

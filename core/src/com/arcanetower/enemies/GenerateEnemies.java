@@ -23,12 +23,39 @@ public class GenerateEnemies {
 	public ArrayList<Goblin> generateEnemies()
 	{
 		this.goblins.clear();
-		if(currentWave == 0)
-		{
-			for (int i = 0; i < 1; ++i) {
+		switch (currentWave) {
+		case 0:
+			for (int i = 0; i < 3; ++i) {
 				goblins.add(new Goblin(startX, startY));
 			}
+			break;
+		case 1:
+			for (int i = 0; i < 6; ++i) {
+				goblins.add(new Goblin(startX, startY));
+			}
+			break;
+		case 2:
+			for (int i = 0; i < 10; ++i) {
+				goblins.add(new Goblin(startX, startY));
+			}
+			break;
+		case 3:
+			for (int i = 0; i < 15; ++i) {
+				goblins.add(new Goblin(startX, startY));
+			}
+			break;
+		case 4:
+			for (int i = 0; i < 20; ++i) {
+				goblins.add(new Goblin(startX, startY));
+			}
+			break;
 		}
+//		if(currentWave == 0)
+//		{
+//			for (int i = 0; i < 1 + currentWave; ++i) {
+//				goblins.add(new Goblin(startX, startY));
+//			}
+//		}
 		return goblins;
 	}
 	
@@ -40,6 +67,11 @@ public class GenerateEnemies {
 	public int getCurrentWave()
 	{
 		return this.currentWave;
+	}
+	
+	public void setCurrentWave(int currentWave)
+	{
+		this.currentWave = currentWave;
 	}
 
 	public ArrayList<Goblin> getGoblins() {

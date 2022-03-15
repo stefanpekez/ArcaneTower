@@ -21,7 +21,7 @@ public class Goblin extends Image{
 		this.isFirst = false;
 //		this.startX = startX;
 //		this.startY = startY;
-		this.health = 100;
+		this.health = 15;
 		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
 	}
 	

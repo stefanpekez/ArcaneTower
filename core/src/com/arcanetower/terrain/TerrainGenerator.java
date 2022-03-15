@@ -13,9 +13,12 @@ import com.arcanetower.tiles.Tile;
 import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.towers.PlacedTowers;
 import com.arcanetower.towers.TowerButton;
+import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.ui.TowerPanel;
 import com.arcanetower.utilities.ArrowBallista;
+import com.arcanetower.utilities.TowerType;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -56,6 +59,7 @@ public class TerrainGenerator {
 	private ArrayList<ArrowBallista> arrows;
 	private ArrayList<Goblin> goblins;
 	private Stage stageUI;
+	private InfoLabels infoLabels;
 	
 	public TerrainGenerator(Stage stage, TowerPanel towerPanel, MainGameScreen screen, Stage stageUI)
 	{
@@ -512,10 +516,11 @@ public class TerrainGenerator {
                         System.out.println("x = " + tmp.getX());
                         System.out.println("y = " + tmp.getY());
                         System.out.println("IsPath = " + tmpBool);
-						if(ballista.isDisabled())
+						if(ballista.isDisabled() && !tile.getHasTower() && infoLabels.removeMoney(50))
 						{
-							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), goblins));
-							System.out.println(placed.getPlacedTowers().size());
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), goblins, infoLabels));
+//							System.out.println(placed.getPlacedTowers().size());
+							
 							final BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
 							bt.addListener(new ClickListener()
 							{
@@ -527,8 +532,11 @@ public class TerrainGenerator {
 									bt.setIsHovered(false);
 								};
 							});
+							
 							Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
 							ballista.setDisabled(false);
+							
+							tile.setTower(true, TowerType.Ballista);
 							screen.setGameSpeed(1);
 							stageUI.addActor(bt);
 						}
@@ -584,10 +592,17 @@ public class TerrainGenerator {
 	public void setGoblins(ArrayList<Goblin> goblins)
 	{
 		this.goblins = goblins;
+		for(BallistaTower bt: placed.getPlacedTowers())
+			bt.setGoblins(goblins);
 	}
 	
 	public PlacedTowers getPlacedTowers()
 	{
 		return placed;
+	}
+	
+	public void setInfoLabels(InfoLabels infoLabels)
+	{
+		this.infoLabels = infoLabels;
 	}
 }

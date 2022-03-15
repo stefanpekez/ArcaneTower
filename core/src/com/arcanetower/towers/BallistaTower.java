@@ -3,8 +3,10 @@ package com.arcanetower.towers;
 import java.util.ArrayList;
 
 import com.arcanetower.enemies.Goblin;
+import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.utilities.ArrowBallista;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -30,8 +32,10 @@ public class BallistaTower extends Image {
 	private Timer timer;
 	private ArrayList<Goblin> goblins;
 	private boolean isHovered;
+	private Sound arrowShot;
+	private InfoLabels infoLabels;
 	
-	public BallistaTower(float xpos, float ypos, ArrayList<Goblin> goblins)
+	public BallistaTower(float xpos, float ypos, ArrayList<Goblin> goblins, InfoLabels infoLabels)
 	{
 		super(new Texture(Gdx.files.internal("ballistaTower.png")));
 		this.xpos = xpos;
@@ -46,6 +50,10 @@ public class BallistaTower extends Image {
 		this.radius = 128f;
 		this.goblins = goblins;
 		this.isHovered = false;
+		
+		this.arrowShot = Gdx.audio.newSound(Gdx.files.internal("effects\\shoot.ogg"));
+		
+		this.infoLabels = infoLabels;
 		
 		setupTimer();
 		sr = new ShapeRenderer();
@@ -62,11 +70,15 @@ public class BallistaTower extends Image {
 		    		if(checkRadius(goblins.get(0).getX(), goblins.get(0).getY()))
 			        {
 		    			shootArrow(goblins.get(0).getX(), goblins.get(0).getY());
+		    			arrowShot.play();
 			        	goblins.get(0).takeDamage(5);
 			        	if(goblins.get(0).getHealth() <= 0)
 			        	{
+			        		Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"));
+							sound.play();
 			        		goblins.get(0).remove();
 			        		goblins.remove(0);
+			        		infoLabels.addMoney(10);
 			        		return;
 			        	}
 			        }
@@ -87,9 +99,6 @@ public class BallistaTower extends Image {
 	
 	public boolean checkRadius(float x, float y)
 	{
-		
-		
-		
 		float Xn = Math.max(x, Math.min(Xc, x + 31f));
 		float Yn = Math.max(y, Math.min(Yc, y + 31f));
 		
@@ -140,10 +149,13 @@ public class BallistaTower extends Image {
         batch.begin();
     }
 	
-	
-	
 	public void setIsHovered(boolean isHovered)
 	{
 		this.isHovered = isHovered;
+	}
+	
+	public void setGoblins(ArrayList<Goblin> goblins)
+	{
+		this.goblins = goblins;
 	}
 }

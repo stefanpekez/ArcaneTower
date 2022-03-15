@@ -9,6 +9,7 @@ import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.terrain.TerrainGenerator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -54,6 +55,7 @@ public class InfoLabels {
 	
 	private ImageButton anim;
 	private MainGameScreen screen;
+	private int enemyAmount;
 	
 	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, MainGameScreen mainGameScreen, Stage stage)
 	{
@@ -64,7 +66,7 @@ public class InfoLabels {
 		this.maxWave = new Label("5", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
 		this.goldImage = new Image(new Texture(Gdx.files.internal("coin24.png")));
-		this.goldNumber = new Label("0", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
+		this.goldNumber = new Label("100", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		this.currency = new Label("$", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
 		this.generatorTerrain = generatorTerrain;
@@ -90,6 +92,7 @@ public class InfoLabels {
 		this.stage = stage;
 		
 		this.screen = mainGameScreen;
+		this.enemyAmount = 0;
 		
 		this.nextWave = new NextWave(stageUI, generatorTerrain, remainingLives, waveCounter);
 		
@@ -167,13 +170,16 @@ public class InfoLabels {
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
 				if(nextWave.getCurrentWave() + 1 == 6)
-					{
-						return;
-					}
-					nextWave.loadEnemies();
-					currentWave.setText(nextWave.getCurrentWave());
-					System.out.println("Clicked skull");
-					anim.remove();
+				{
+					return;
+				}
+				Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
+				sound.play();
+				nextWave.loadEnemies();
+				currentWave.setText(nextWave.getCurrentWave());
+				System.out.println("Clicked skull");
+				anim.setVisible(false);
+				anim.setDisabled(true);
 			}
 		});
 		
@@ -188,9 +194,12 @@ public class InfoLabels {
 					{
 						return false;
 					}
+					Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
+					sound.play();
 					nextWave.loadEnemies();
 					currentWave.setText(nextWave.getCurrentWave());
-					anim.remove();
+					anim.setVisible(false);
+					anim.setDisabled(true);
 					return true;
 			    case Input.Keys.NUM_1:
 			    	screen.setGameSpeed(0);
@@ -209,14 +218,63 @@ public class InfoLabels {
 		
 	}
 	
+	public int getCurrentWave()
+	{
+		return Integer.parseInt(currentWave.getText().toString());
+	}
+	
+	public int getMaxWave()
+	{
+		return Integer.parseInt(maxWave.getText().toString());
+	}
+	
 	public Label getRemainingLives()
 	{
 		return this.remainingLives;
 	}
 	
+	public void setWaveButton()
+	{
+		anim.setVisible(true);
+		anim.setDisabled(false);
+	}
+	
+	public void setEnemyAmount(int enemyAmount)
+	{
+		this.enemyAmount = enemyAmount;
+	}
+	
+	public int getEnemyAmount()
+	{
+		return this.enemyAmount;
+	}
+	
 	public ArrayList<Goblin> getGoblins()
 	{
 		return this.nextWave.getGoblins();
+	}
+	
+	public void addMoney(int amount)
+	{
+		this.goldNumber.setText(Integer.toString(Integer.parseInt(this.goldNumber.getText().toString()) + amount));
+	}
+	
+	public boolean removeMoney(int amount)
+	{
+		if((Integer.parseInt(this.goldNumber.getText().toString()) - amount) < 0)
+		{
+			System.out.println("No money");
+			return false;
+		} else
+		{
+			this.goldNumber.setText(Integer.toString(Integer.parseInt(this.goldNumber.getText().toString()) - amount));
+			return true;
+		}
+	}
+	
+	public int getMoney()
+	{
+		return Integer.parseInt(this.goldNumber.getText().toString());
 	}
 	
 }
