@@ -7,11 +7,11 @@ import com.arcanetower.enemies.NextWave;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.terrain.TerrainGenerator;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,10 +20,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class InfoLabels {
 	
@@ -39,7 +37,7 @@ public class InfoLabels {
 	private Image lives;
 	private Label remainingLives;
 	
-	private ImageButton startWave;
+//	private ImageButton startWave;
 	private ImageButton pauseButton;
 	private ImageButton playButton;
 	private ImageButton forwardButton;
@@ -55,9 +53,7 @@ public class InfoLabels {
 	private int waveCounter;
 	
 	private ImageButton anim;
-	
 	private MainGameScreen screen;
-	private ArrayList<Goblin> goblins;
 	
 	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, MainGameScreen mainGameScreen, Stage stage)
 	{
@@ -67,7 +63,7 @@ public class InfoLabels {
 		this.separator = new Label("/", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		this.maxWave = new Label("5", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
-		this.goldImage = new Image(new Texture("coin24.png"));
+		this.goldImage = new Image(new Texture(Gdx.files.internal("coin24.png")));
 		this.goldNumber = new Label("0", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		this.currency = new Label("$", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
@@ -78,27 +74,26 @@ public class InfoLabels {
 		
 		this.waveCounter = 0;
 		
-		this.lives = new Image(new Texture("heart24.png"));
+		this.lives = new Image(new Texture(Gdx.files.internal("heart24.png")));
 		this.remainingLives = new Label("20", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
-		Drawable drawablePause = new TextureRegionDrawable(new Texture("pause32.png"));
+		Drawable drawablePause = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause32.png")));
 		this.pauseButton = new ImageButton(drawablePause);
 		
-		Drawable drawablePlay = new TextureRegionDrawable(new Texture("play32.png"));
+		Drawable drawablePlay = new TextureRegionDrawable(new Texture(Gdx.files.internal("play32.png")));
 		this.playButton = new ImageButton(drawablePlay);
 		
-		Drawable drawableForward = new TextureRegionDrawable(new Texture("forward32.png"));
+		Drawable drawableForward = new TextureRegionDrawable(new Texture(Gdx.files.internal("forward32.png")));
 		this.forwardButton = new ImageButton(drawableForward);
 		
 		this.stageUI = stageUI;
 		this.stage = stage;
 		
 		this.screen = mainGameScreen;
-		this.goblins = new ArrayList<Goblin>();
 		
 		this.nextWave = new NextWave(stageUI, generatorTerrain, remainingLives, waveCounter);
 		
-		anim = new ImageButton(new TextureRegionDrawable(new Texture("start24Anim.png")));
+		anim = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal("start24Anim.png"))));
 		anim.setTransform(true);
 		anim.addAction(Actions.forever(Actions.sequence(
 				Actions.scaleBy(0.5f, 0.5f, 0.7f), 

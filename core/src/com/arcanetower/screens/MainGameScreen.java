@@ -1,8 +1,5 @@
 package com.arcanetower.screens;
 
-import java.util.ArrayList;
-
-import com.arcanetower.enemies.Goblin;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.terrain.TerrainGenerator;
 import com.arcanetower.towers.BallistaTower;
@@ -11,12 +8,9 @@ import com.arcanetower.ui.TowerPanel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -44,7 +38,6 @@ public class MainGameScreen implements Screen {
 	private Group groupTowers;
 	
 	private int gameSpeed;
-	private ArrayList<Goblin> goblins;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -65,14 +58,14 @@ public class MainGameScreen implements Screen {
 		towerPanel = new TowerPanel(stageUI, this);
 		generator = new TerrainGenerator(stage, towerPanel, this, stageUI);
 		
-		infoBar = new Image(new Texture("infobarNB.png"));
+		infoBar = new Image(new Texture(Gdx.files.internal("infobarNB.png")));
 		infoBar.setPosition(0, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
 		
 		stageUI.addActor(infoBar);
 		
 		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch(), this, stage);
 		
-		corner = new Image(new Texture("corner.png"));
+		corner = new Image(new Texture(Gdx.files.internal("corner.png")));
 		corner.setPosition(ArcaneTower.SCREEN_WIDTH - 2 * 32, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
 		
 		stageUI.addActor(corner);

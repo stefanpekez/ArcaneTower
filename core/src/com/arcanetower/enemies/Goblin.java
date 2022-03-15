@@ -1,5 +1,6 @@
 package com.arcanetower.enemies;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -14,13 +15,13 @@ public class Goblin extends Image{
 	
 	public Goblin(int startX, int startY)
 	{
-		super(new Texture("goblin32.png"));
+		super(new Texture(Gdx.files.internal("goblin32.png")));
 		setPosition(startX, startY);
 		
 		this.isFirst = false;
 //		this.startX = startX;
 //		this.startY = startY;
-		this.health = 10;
+		this.health = 100;
 		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
 	}
 	

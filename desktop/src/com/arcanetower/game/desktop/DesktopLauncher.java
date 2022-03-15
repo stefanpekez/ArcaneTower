@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.width = ArcaneTower.SCREEN_WIDTH;
 		config.height = ArcaneTower.SCREEN_HEIGTH;
 		config.resizable = false;
-		config.addIcon("appIcon.png", null);
+		config.addIcon("appIcon.png", FileType.Internal);
 		
 		new LwjglApplication(new ArcaneTower(), config);
 	}

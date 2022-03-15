@@ -16,26 +16,16 @@ import com.arcanetower.towers.TowerButton;
 import com.arcanetower.ui.TowerPanel;
 import com.arcanetower.utilities.ArrowBallista;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Timer;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 
 public class TerrainGenerator {
 	
@@ -63,7 +53,6 @@ public class TerrainGenerator {
 	
 	private MainGameScreen screen;
 	
-	private ArrowBallista arrow;
 	private ArrayList<ArrowBallista> arrows;
 	private ArrayList<Goblin> goblins;
 	private Stage stageUI;
@@ -72,13 +61,13 @@ public class TerrainGenerator {
 	{
 		this.stage = stage;
 		this.gridMap = new HashMap<Integer, Tile>();
-		this.grassTile = new TextureRegionDrawable(new Texture("grassNoBorder.png"));
-		this.pathTile = new TextureRegionDrawable(new Texture("pathNoBorder.png"));
+		this.grassTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("grassNoBorder.png")));
+		this.pathTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("pathNoBorder.png")));
 		
-		this.grassHighlight = new Image(new Texture("grassHovered.png"));
+		this.grassHighlight = new Image(new Texture(Gdx.files.internal("grassHovered.png")));
 		this.grassHighlight.setVisible(false);
 		
-		this.pathHighlight = new Image(new Texture("pathHovered.png"));
+		this.pathHighlight = new Image(new Texture(Gdx.files.internal("pathHovered.png")));
 		this.pathHighlight.setVisible(false);
 		
 		this.pathID = new ArrayList<Integer>();
@@ -527,7 +516,17 @@ public class TerrainGenerator {
 						{
 							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), goblins));
 							System.out.println(placed.getPlacedTowers().size());
-							BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
+							final BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
+							bt.addListener(new ClickListener()
+							{
+								public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+									bt.setIsHovered(true);
+								};
+								
+								public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+									bt.setIsHovered(false);
+								};
+							});
 							Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
 							ballista.setDisabled(false);
 							screen.setGameSpeed(1);
@@ -569,13 +568,13 @@ public class TerrainGenerator {
 		return this.pathID;
 	}
 	
-	private void writePathID()
-	{
-		for(Integer i: this.pathID)
-		{
-			System.out.println(i);
-		}
-	}
+//	private void writePathID()
+//	{
+//		for(Integer i: this.pathID)
+//		{
+//			System.out.println(i);
+//		}
+//	}
 	
 	public HashMap<Integer, Tile> getGridMap()
 	{

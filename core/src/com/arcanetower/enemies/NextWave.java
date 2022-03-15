@@ -4,21 +4,11 @@ import java.util.ArrayList;
 
 import com.arcanetower.terrain.TerrainGenerator;
 import com.arcanetower.tiles.Tile;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Timer;
 
 public class NextWave {
 	
@@ -33,12 +23,14 @@ public class NextWave {
 	private Group groupEnemies;
 	private SequenceAction sequenceAction;
 	private int currentWave;
+//	private Label gold;
 
 	public NextWave(Stage stage, TerrainGenerator generatorTerrain, Label remLives, int currentWave)
 	{
 		this.generatorEnemies = new GenerateEnemies(generatorTerrain.getStartX() - 32, generatorTerrain.getStartY(), currentWave);
 		this.stage = stage;
-		this.goblins = generatorEnemies.getGoblins();
+//		this.goblins = generatorEnemies.getGoblins();
+		this.goblins = new ArrayList<Goblin>();
 		this.generatorTerrain = generatorTerrain;
 		this.paths = new ArrayList<Tile>();
 		this.remLives = remLives;
@@ -65,7 +57,10 @@ public class NextWave {
 	{
 		++currentWave;
 		goblins.clear();
-		goblins = generatorEnemies.generateEnemies();
+		for(Goblin g: generatorEnemies.generateEnemies())
+		{
+			goblins.add(g);
+		}
 		for(int i = 0; i < goblins.size(); ++i)
 		{
 			if(i == 0)

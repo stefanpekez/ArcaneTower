@@ -26,19 +26,19 @@ public class MainMenuScreen implements Screen{
 	
 	public MainMenuScreen(ArcaneTower game) {
 		this.game = game;
-		playActiveSprite = new Sprite(new Texture("playActive.png"));
+		playActiveSprite = new Sprite(new Texture(Gdx.files.internal("playActive.png")));
 		playActiveSprite.setOrigin(0, 0);
 		playActiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, PLAY_BUTTON_Y_POS);
 		
-		playInactiveSprite = new Sprite(new Texture("playInactive.png"));
+		playInactiveSprite = new Sprite(new Texture(Gdx.files.internal("playInactive.png")));
 		playInactiveSprite.setOrigin(0, 0);
 		playInactiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, PLAY_BUTTON_Y_POS);
 		
-		exitActiveSprite = new Sprite(new Texture("exitActive.png"));
+		exitActiveSprite = new Sprite(new Texture(Gdx.files.internal("exitActive.png")));
 		exitActiveSprite.setOrigin(0, 0);
 		exitActiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, EXIT_BUTTON_Y_POS);
 		
-		exitInactiveSprite = new Sprite(new Texture("exitInactive.png"));
+		exitInactiveSprite = new Sprite(new Texture(Gdx.files.internal("exitInactive.png")));
 		exitInactiveSprite.setOrigin(0, 0);
 		exitInactiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, EXIT_BUTTON_Y_POS);
 		

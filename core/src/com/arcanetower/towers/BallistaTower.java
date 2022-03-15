@@ -4,12 +4,11 @@ import java.util.ArrayList;
 
 import com.arcanetower.enemies.Goblin;
 import com.arcanetower.utilities.ArrowBallista;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -22,16 +21,19 @@ public class BallistaTower extends Image {
 	
 	private float h;
 	private float k;
+	private float Xc;
+	private float Yc;
 	private float radius;
 	private ShapeRenderer sr;
 	private ArrowBallista arrow;
 	private MoveToAction mta;
 	private Timer timer;
 	private ArrayList<Goblin> goblins;
+	private boolean isHovered;
 	
 	public BallistaTower(float xpos, float ypos, ArrayList<Goblin> goblins)
 	{
-		super(new Texture("ballistaTower.png"));
+		super(new Texture(Gdx.files.internal("ballistaTower.png")));
 		this.xpos = xpos;
 		this.ypos = ypos;
 		
@@ -39,8 +41,12 @@ public class BallistaTower extends Image {
 		
 		this.h = xpos;
 		this.k = ypos;
+		Xc = h + this.getWidth() / 2;
+		Yc = k + this.getHeight() / 2;
 		this.radius = 128f;
 		this.goblins = goblins;
+		this.isHovered = false;
+		
 		setupTimer();
 		sr = new ShapeRenderer();
 	}
@@ -66,7 +72,7 @@ public class BallistaTower extends Image {
 			        }
 		    	}
 		    }
-		}, 0f, 1f);
+		}, 0f, 1.5f);
 	}
 	
 	public void stopTimer()
@@ -81,8 +87,16 @@ public class BallistaTower extends Image {
 	
 	public boolean checkRadius(float x, float y)
 	{
-		float pos = (float) Math.sqrt(Math.pow(x-(h + this.getWidth() / 2), 2) + Math.pow(y-(k + this.getHeight() / 2), 2));
-		if(pos < radius)
+		
+		
+		
+		float Xn = Math.max(x, Math.min(Xc, x + 31f));
+		float Yn = Math.max(y, Math.min(Yc, y + 31f));
+		
+		float Dx = Xn - Xc;
+		float Dy = Yn - Yc;
+		
+		if(Dx * Dx + Dy * Dy <= radius * radius)
 			return true;
 		return false;
 	}
@@ -109,18 +123,27 @@ public class BallistaTower extends Image {
 	@Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+        if(isHovered == false)
+        	return;
 
         batch.end();
         
         sr.setProjectionMatrix(batch.getProjectionMatrix());
-        sr.setColor(Color.BLUE);
+        sr.setColor(Color.BLACK);
         
         sr.begin(ShapeRenderer.ShapeType.Line);
 
 
-        sr.circle(h + this.getWidth() / 2, k + this.getHeight() / 2, radius);
+        sr.circle(h + this.getWidth() / 2, k + this.getHeight() / 2, radius, 500);
         sr.end();
 
         batch.begin();
     }
+	
+	
+	
+	public void setIsHovered(boolean isHovered)
+	{
+		this.isHovered = isHovered;
+	}
 }

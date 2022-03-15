@@ -1,7 +1,6 @@
 package com.arcanetower.enemies;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class GenerateEnemies {
 	
@@ -9,7 +8,7 @@ public class GenerateEnemies {
 	private ArrayList<Goblin> goblins;
 	private int currentWave;
 	private int startX, startY;
-	private int amount;
+//	private int amount;
 	
 	public GenerateEnemies(int startX, int startY, int currentWave)
 	{
@@ -23,9 +22,10 @@ public class GenerateEnemies {
 	
 	public ArrayList<Goblin> generateEnemies()
 	{
+		this.goblins.clear();
 		if(currentWave == 0)
 		{
-			for (int i = 0; i < 10; ++i) {
+			for (int i = 0; i < 1; ++i) {
 				goblins.add(new Goblin(startX, startY));
 			}
 		}

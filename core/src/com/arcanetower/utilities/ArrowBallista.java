@@ -1,5 +1,6 @@
 package com.arcanetower.utilities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -10,7 +11,7 @@ public class ArrowBallista extends Image{
 	
 	public ArrowBallista()
 	{
-		super(new Texture("ArrowBallista16.png"));
+		super(new Texture(Gdx.files.internal("ArrowBallista16.png")));
 		this.setPosition(getOriginX(), getOriginY());
 		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
 	}

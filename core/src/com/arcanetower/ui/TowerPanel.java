@@ -5,18 +5,11 @@ import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.towers.TowerButton;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class TowerPanel extends Image{
@@ -35,7 +28,7 @@ public class TowerPanel extends Image{
 	
 	private Pixmap pm;
 	
-	private Stage stage;
+//	private Stage stage;
 	private MainGameScreen screen;
 	
 	public TowerPanel()
@@ -45,13 +38,13 @@ public class TowerPanel extends Image{
 	
 	public TowerPanel(Stage stage, MainGameScreen screen) 
 	{
-		super(new Texture("towerPanelNB.png"));
+		super(new Texture(Gdx.files.internal("towerpanelNB.png")));
 		setPosition(ArcaneTower.SCREEN_WIDTH - 2 * 32, 0);
 		
-		this.stage = stage;
+//		this.stage = stage;
 		this.screen = screen;
 		
-		this.ballistaIcon = new TextureRegionDrawable(new Texture("ballistaIcon.png"));
+		this.ballistaIcon = new TextureRegionDrawable(new Texture(Gdx.files.internal("ballistaIcon.png")));
 		this.ballista = new TowerButton(this.ballistaIcon);
 		this.pm = null;
 		
@@ -62,17 +55,18 @@ public class TowerPanel extends Image{
 	
 	public void addActions()
 	{
+		
 		this.ballista.addListener(new ChangeListener()
 		{
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				// TODO Auto-generated method stub
-				Texture place = new Texture("ballistaTower.png");
+				Texture place = new Texture(Gdx.files.internal("ballistaRange.png"));
 				if (!place.getTextureData().isPrepared()) {
 					place.getTextureData().prepare();
 				}
 				pm = place.getTextureData().consumePixmap();
-				Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 16, 16));
+				Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 128, 128));
 				ballista.setDisabled(true);
 				System.out.println(ballista.isDisabled());
 				screen.setGameSpeed(0);
