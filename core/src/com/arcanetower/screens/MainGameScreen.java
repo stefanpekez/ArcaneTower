@@ -1,33 +1,20 @@
 package com.arcanetower.screens;
 
-import java.util.Random;
-
-import javax.swing.JOptionPane;
-
-import com.arcanetower.enemies.BasicEnemy;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.terrain.TerrainGenerator;
-import com.arcanetower.tiles.Point;
-import com.arcanetower.tiles.Tile;
-import com.arcanetower.ui.CreateFont;
+import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.ui.InfoLabels;
+import com.arcanetower.ui.TowerPanel;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainGameScreen implements Screen {
 
@@ -35,18 +22,21 @@ public class MainGameScreen implements Screen {
 	float y;
 	
 	private ArcaneTower game;
-	
 	private OrthographicCamera camera;
-	
 	private Stage stage;
 	private Stage stageUI;
-	private TerrainGenerator generator;
 	
+	private TerrainGenerator generator;
 	private Image infoBar;
 	private InfoLabels infoLabels;
 	
-	private Dialog dialog;
-	private boolean isFirst = true;
+	private Image corner;
+	private TowerPanel towerPanel;
+	private Group groupTowers;
+	
+	private int gameSpeed;
+	
+	private Music gameMusic;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -60,9 +50,28 @@ public class MainGameScreen implements Screen {
 		camera.position.set(ArcaneTower.SCREEN_WIDTH / 2, ArcaneTower.SCREEN_HEIGTH / 2, 0);
 		camera.update();
 		
+		this.gameSpeed = 1;
+		
 		stage = new Stage();
 		stageUI = new Stage();
-		generator = new TerrainGenerator(stage);
+		towerPanel = new TowerPanel(stageUI, this);
+		generator = new TerrainGenerator(stage, towerPanel, this, stageUI);
+		
+		infoBar = new Image(new Texture(Gdx.files.internal("infobarNB.png")));
+		infoBar.setPosition(0, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
+		
+		stageUI.addActor(infoBar);
+		
+		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch(), this, stage);
+		
+		towerPanel.setInfoLabels(infoLabels);
+		
+		generator.setInfoLabels(infoLabels);
+		
+		corner = new Image(new Texture(Gdx.files.internal("corner.png")));
+		corner.setPosition(ArcaneTower.SCREEN_WIDTH - 2 * 32, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
+		
+		stageUI.addActor(corner);
 		
 		InputMultiplexer inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(stage);
@@ -70,36 +79,77 @@ public class MainGameScreen implements Screen {
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		
-		infoBar = new Image(new Texture("infobarNB.png"));
-		infoBar.setPosition(0, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
+		// Makes it so that the enemies go behind the tower panel
+		this.groupTowers = new Group();
+		stageUI.addActor(groupTowers);
 		
-		stageUI.addActor(infoBar);
+		groupTowers.addActor(towerPanel);
+		groupTowers.addActor(towerPanel.getBallista());
+		groupTowers.setZIndex(2);
 		
-		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch());
-		
-//		Skin skin = new Skin(Gdx.files.internal("uiskin.json"));
-//		
-//		dialog = new Dialog("Game over", skin, "dialog")
-//		{
-//			public void result(Object obj) {
-//		        System.out.println("result "+ obj);
-//		    }
-//		};
-//		dialog.text("Game over");
-		
+		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusic.ogg"));
+		gameMusic.setLooping(true);
+		gameMusic.play();
 	}
 
 	@Override
 	public void render(float delta) {
 		// TODO Auto-generated method stub
-		stage.act(delta);
-		stageUI.act(delta);
-		
-		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-		stage.draw();
-		stageUI.draw();
+		switch(gameSpeed)
+		{
+			// PAUSE
+			case 0:
+				stage.act(delta);
+				
+				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
+				{
+					bt.stopTimer();
+				}
+				Gdx.gl.glClearColor(1, 1, 1, 1);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				
+				stage.draw();
+				stageUI.draw();
+				break;
+			// RUN
+			case 1:
+				stage.act(delta);
+				stageUI.act(delta);
+				
+				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
+				{
+					bt.resumeTimer();
+				}
+				
+				Gdx.gl.glClearColor(1, 1, 1, 1);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				infoLabels.setEnemyAmount(infoLabels.getGoblins().size());
+				
+				if(infoLabels.getGoblins().size() > 0)
+					generator.setGoblins(infoLabels.getGoblins());
+				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
+				{
+					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+					{
+						
+					}
+					else
+					{
+						infoLabels.setWaveButton();
+					}
+					
+				}
+					
+				
+				stage.draw();
+				stageUI.draw();
+				
+				break;
+			// TODO: FASTER
+			case 2:
+				break;
+		}
 		
 	}
 
@@ -131,6 +181,16 @@ public class MainGameScreen implements Screen {
 	public void dispose() {
 		// TODO Auto-generated method stub
 		stage.dispose();
+	}
+	
+	public void setGameSpeed(int speed)
+	{
+		this.gameSpeed = speed;
+	}
+	
+	public int getGameSpeed()
+	{
+		return this.gameSpeed;
 	}
 
 }
