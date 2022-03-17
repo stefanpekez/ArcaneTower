@@ -77,6 +77,7 @@ public class TowerPanel extends Image{
 				screen.setGameSpeed(0);
 			}
 		});
+		
 	}
 	
 	public void setPositions()

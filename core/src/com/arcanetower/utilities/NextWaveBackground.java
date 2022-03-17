@@ -1,7 +1,9 @@
-package com.arcanetower.enemies;
+package com.arcanetower.utilities;
 
 import java.util.ArrayList;
 
+import com.arcanetower.enemies.Enemy;
+import com.arcanetower.enemies.GenerateEnemies;
 import com.arcanetower.terrain.TerrainGenerator;
 import com.arcanetower.tiles.Tile;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -10,40 +12,37 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
-public class NextWave {
+public class NextWaveBackground {
 	
-	private GenerateEnemies generatorEnemies;
-	private Stage stage;
+	private BackgroundGenerator generatorTerrain;
+	private GenerateEnemiesBackground generatorEnemies;
+	private Stage stageBackground;
 	private ArrayList<Tile> paths;
-	private TerrainGenerator generatorTerrain;
 	private float destinationX;
 	private float destinationY;
 	private ArrayList<Enemy> enemies;
-	private Label remLives;
-	private Group groupEnemies;
 	private SequenceAction sequenceAction;
 	private int currentWave;
-//	private Label gold;
 	private int tileID;
-	private ArrayList<Tile> pathsNew;
+	private int enemyAmount;
+	
+	private int maxWave;
 
-	public NextWave(Stage stage, TerrainGenerator generatorTerrain, Label remLives, int currentWave)
+	public NextWaveBackground(Stage stageBackground, BackgroundGenerator generatorTerrain)
 	{
-		this.generatorEnemies = new GenerateEnemies(generatorTerrain.getStartX() - 32, generatorTerrain.getStartY(), currentWave);
-		this.stage = stage;
+		this.generatorEnemies = new GenerateEnemiesBackground(generatorTerrain.getStartX() - 32, generatorTerrain.getStartY(), 0);
+		this.stageBackground = stageBackground;
 		this.enemies = new ArrayList<Enemy>();
 		this.generatorTerrain = generatorTerrain;
 		this.paths = new ArrayList<Tile>();
-		this.remLives = remLives;
-		this.groupEnemies = new Group();
-		this.currentWave = currentWave;
+		this.currentWave = 0;
+		
+		this.maxWave = 15;
 		
 		loadTiles();
 		
 		destinationX = generatorTerrain.getStartX();
 		destinationY = generatorTerrain.getStartY();
-		
-		this.stage.addActor(this.groupEnemies);
 	}
 	
 	private void loadTiles()
@@ -71,8 +70,7 @@ public class NextWave {
 			}
 			
 			enemies.get(i).setPosition(generatorTerrain.getStartX() - 32, generatorTerrain.getStartY());
-			groupEnemies.setZIndex(1);
-			groupEnemies.addActor(enemies.get(i));
+			this.stageBackground.addActor(enemies.get(i));
 			GenerateMovement(enemies.get(i), enemies.get(i).getX(), enemies.get(i).getY(), i);
 		}
 		generatorEnemies.setCurrentWave(currentWave);
@@ -83,7 +81,7 @@ public class NextWave {
 		sequenceAction = new SequenceAction();
 		if(!enemy.getIsFirst())
 		{
-			sequenceAction.addAction(Actions.delay(0.5f * delay));
+			sequenceAction.addAction(Actions.delay(0.3f * delay));
 		}
 		for(int i = 0; i < paths.size(); ++i)
 		{
@@ -92,7 +90,7 @@ public class NextWave {
 			destinationX = t.getX();
 			destinationY = t.getY();
 			
-			sequenceAction.addAction(Actions.moveBy(destinationX - x, destinationY - y, 0.5f));
+			sequenceAction.addAction(Actions.moveBy(destinationX - x, destinationY - y, 0.3f));
 			
 			x = x + destinationX - x;
 			y = y + destinationY - y;
@@ -104,24 +102,19 @@ public class NextWave {
 			public void run() {
 				// TODO Auto-generated method stub
 				SequenceAction deleteSequenceAction = new SequenceAction();
-				deleteSequenceAction.addAction(Actions.moveBy(32, 0, 0.5f));
+				deleteSequenceAction.addAction(Actions.moveBy(32, 0, 0.3f));
 				deleteSequenceAction.addAction(Actions.run(new Runnable() {
 					
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
-						int life = Integer.parseInt(remLives.getText().toString());
-						life = life - enemy.getHeartDMG();
-						remLives.setText(Integer.toString(life));
 						enemy.remove();
 						enemies.remove(enemy);
-						System.out.println("Izbrisan");
 					}
 				}));
 				enemy.addAction(deleteSequenceAction);
 			}
 		}));
-		
 		
 		enemy.addAction(sequenceAction);
 	}
@@ -151,8 +144,18 @@ public class NextWave {
 		this.tileID = tileID;
 	}
 	
-	public ArrayList<Tile> getPathsNew()
+	public void setEnemyAmount(int enemyAmount)
 	{
-		return this.pathsNew;
+		this.enemyAmount = enemyAmount;
+	}
+	
+	public int getEnemyAmount()
+	{
+		return this.enemyAmount;
+	}
+	
+	public int getMaxWave()
+	{
+		return this.maxWave;
 	}
 }

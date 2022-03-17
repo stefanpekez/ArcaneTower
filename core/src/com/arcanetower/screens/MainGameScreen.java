@@ -6,15 +6,19 @@ import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.ui.TowerPanel;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MainGameScreen implements Screen {
 
@@ -37,6 +41,8 @@ public class MainGameScreen implements Screen {
 	private int gameSpeed;
 	
 	private Music gameMusic;
+	
+	private int speed;
 	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
@@ -90,6 +96,19 @@ public class MainGameScreen implements Screen {
 		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusic.ogg"));
 		gameMusic.setLooping(true);
 		gameMusic.play();
+		
+		this.speed = 1;
+		
+		stage.addListener(new ClickListener(Buttons.RIGHT) {
+			
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				// TODO Auto-generated method stub
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+				towerPanel.getBallista().setDisabled(false);
+				setGameSpeed(1);
+			}
+		});
 	}
 
 	@Override
@@ -99,7 +118,7 @@ public class MainGameScreen implements Screen {
 		{
 			// PAUSE
 			case 0:
-				stage.act(delta);
+				stage.act(delta * speed);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
@@ -113,34 +132,38 @@ public class MainGameScreen implements Screen {
 				break;
 			// RUN
 			case 1:
-				stage.act(delta);
-				stageUI.act(delta);
+				stage.act(delta * speed);
+				stageUI.act(delta * speed);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
-					bt.resumeTimer();
+					bt.resumeTimer(this.speed);
 				}
 				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-				infoLabels.setEnemyAmount(infoLabels.getGoblins().size());
 				
-				if(infoLabels.getGoblins().size() > 0)
-					generator.setGoblins(infoLabels.getGoblins());
+				infoLabels.setEnemyAmount(infoLabels.getEnemies().size());
+				
+				if(infoLabels.getEnemies().size() > 0)
+					generator.setGoblins(infoLabels.getEnemies());
+				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+				{
+					infoLabels.setFireworks();
+				}
 				
 				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
 				{
+					
 					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
 					{
-						
 					}
 					else
 					{
 						infoLabels.setWaveButton();
 					}
-					
 				}
-					
 				
 				stage.draw();
 				stageUI.draw();
@@ -191,6 +214,16 @@ public class MainGameScreen implements Screen {
 	public int getGameSpeed()
 	{
 		return this.gameSpeed;
+	}
+	
+	public void setEnemySpeed(int speed)
+	{
+		this.speed = speed;
+	}
+	
+	public int getEnemySpeed()
+	{
+		return this.speed;
 	}
 
 }
