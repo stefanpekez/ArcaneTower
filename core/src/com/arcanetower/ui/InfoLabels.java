@@ -1,6 +1,7 @@
 package com.arcanetower.ui;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.arcanetower.enemies.Goblin;
 import com.arcanetower.enemies.NextWave;
@@ -23,6 +24,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.utils.Timer.Task;
 
 public class InfoLabels {
 	
@@ -56,6 +59,14 @@ public class InfoLabels {
 	private ImageButton anim;
 	private MainGameScreen screen;
 	private int enemyAmount;
+	private Image pressSpace;
+	private boolean shootFireworks;
+	
+	private Sound fireworksTrail;
+	private Sound fireworksBang;
+	
+	private int i;
+	private Timer timer;
 	
 	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, MainGameScreen mainGameScreen, Stage stage)
 	{
@@ -102,6 +113,26 @@ public class InfoLabels {
 				Actions.scaleBy(0.5f, 0.5f, 0.7f), 
 				Actions.scaleBy(-0.5f, -0.5f, 0.7f))));
 		
+		this.pressSpace = new Image(new Texture(Gdx.files.internal("pressSpace.png")));
+		pressSpace.addAction(Actions.forever(Actions.sequence(Actions.fadeOut(1f), Actions.fadeIn(1f))));
+		
+		this.shootFireworks = true;
+		this.fireworksTrail = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksSound.ogg"));
+		this.fireworksBang = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksBang.ogg"));
+		
+		this.i = 0;
+		this.timer = new Timer();
+		this.timer.scheduleTask(new Task() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				++i;
+				System.out.println(i);
+			}
+		}, 0f, 1f);
+		this.timer.stop();
+		
 		setPositions();
 		addActionToButtons(this.generatorTerrain, this.remainingLives, this.screen);
 		addToStage();
@@ -123,6 +154,8 @@ public class InfoLabels {
 		this.forwardButton.setPosition(playButton.getX() + 36, ArcaneTower.SCREEN_HEIGTH - 2 * 32 + 15);
 		
 		this.anim.setPosition(startX + (32 - 24) / 2, startY + (32 - 24) / 2);
+		
+		this.pressSpace.setPosition(5 * 32 + 16, 1 * 32);
 	}
 	
 	private void addToStage()
@@ -140,6 +173,7 @@ public class InfoLabels {
 		stageUI.addActor(playButton);
 		stageUI.addActor(forwardButton);
 		stage.addActor(anim);
+		stageUI.addActor(pressSpace);
 	}
 	
 	private void addActionToButtons(final TerrainGenerator generatorTerrain, final Label remainingLives, final MainGameScreen screen)
@@ -152,6 +186,7 @@ public class InfoLabels {
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
 				screen.setGameSpeed(1);
+				screen.setEnemySpeed(1);
 			}
 		});
 		
@@ -164,15 +199,28 @@ public class InfoLabels {
 			}
 		});
 		
+		this.forwardButton.addListener(new ActorGestureListener()
+		{
+			@Override
+			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				// TODO Auto-generated method stub
+				screen.setGameSpeed(1);
+				screen.setEnemySpeed(2);
+			}
+		});
+		
 		this.anim.addListener(new ActorGestureListener() {
 			
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
-				if(nextWave.getCurrentWave() + 1 == 6)
+				if(nextWave.getCurrentWave() + 1 == Integer.parseInt(maxWave.getText().toString()) + 1)
 				{
 					return;
 				}
+				i = 0;
+				timer.start();
+				pressSpace.setVisible(false);
 				Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
 				sound.play();
 				nextWave.loadEnemies();
@@ -190,17 +238,24 @@ public class InfoLabels {
 				// TODO Auto-generated method stub
 				switch (keycode) {
 				case Input.Keys.SPACE:
-					if(nextWave.getCurrentWave() + 1 == 6)
+					if(pressSpace.isVisible())
 					{
-						return false;
+						if(nextWave.getCurrentWave() + 1 == Integer.parseInt(maxWave.getText().toString()) + 1)
+						{
+							return false;
+						}
+//						i = 0;
+//						timer.start();
+						pressSpace.setVisible(false);
+						Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
+						sound.play();
+						nextWave.loadEnemies();
+						currentWave.setText(nextWave.getCurrentWave());
+						anim.setVisible(false);
+						anim.setDisabled(true);
+						return true;
 					}
-					Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
-					sound.play();
-					nextWave.loadEnemies();
-					currentWave.setText(nextWave.getCurrentWave());
-					anim.setVisible(false);
-					anim.setDisabled(true);
-					return true;
+					return false;
 			    case Input.Keys.NUM_1:
 			    	screen.setGameSpeed(0);
 			    	return true;
@@ -235,8 +290,11 @@ public class InfoLabels {
 	
 	public void setWaveButton()
 	{
+		timer.stop();
+		pressSpace.setVisible(true);
 		anim.setVisible(true);
 		anim.setDisabled(false);
+		
 	}
 	
 	public void setEnemyAmount(int enemyAmount)
@@ -275,6 +333,55 @@ public class InfoLabels {
 	public int getMoney()
 	{
 		return Integer.parseInt(this.goldNumber.getText().toString());
+	}
+	
+	public void setFireworks()
+	{
+		if(shootFireworks)
+		{
+			for(int i = 0; i < 50; ++i)
+				shootFireworks();
+			shootFireworks = false;
+		}
+	}
+	
+	public void shootFireworks()
+	{
+		final Random rand = new Random();
+		final int randomX = rand.nextInt((23 - 1) + 1) + 1;
+		final int randomY = rand.nextInt((14 - 1) + 1) + 1;
+		
+		final Image fireworkTrail = new Image(new Texture(Gdx.files.internal("fireworkTrail.png")));
+		fireworkTrail.setPosition((randomX) * 32, -32);
+		stageUI.addActor(fireworkTrail);
+		
+		fireworkTrail.addAction(Actions.sequence(Actions.delay(rand.nextInt((15 - 0) + 1) + 0 * 0.5f), Actions.run(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				fireworksTrail.play();
+			}
+		}), Actions.moveTo((randomX) * 32, (randomY) * 32, 1f), Actions.run(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				fireworksBang.play();
+				fireworkTrail.remove();
+				final Image fireworks = new Image(new Texture(Gdx.files.internal("fireworks.png")));
+				fireworks.setPosition((randomX) * 32 - 54, (randomY) * 32 - 54);
+				stageUI.addActor(fireworks);
+				fireworks.addAction(Actions.sequence(Actions.delay(0.5f), Actions.run(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						fireworks.remove();
+					}
+				})));
+			}
+		})));
 	}
 	
 }

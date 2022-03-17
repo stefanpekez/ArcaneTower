@@ -10,6 +10,8 @@ public class Goblin extends Image{
 	private int health;
 	private boolean isFirst;
 	private Rectangle bounds;
+	private boolean inRange;
+	private int bounty;
 //	private int startX;
 //	private int startY;
 	
@@ -19,10 +21,12 @@ public class Goblin extends Image{
 		setPosition(startX, startY);
 		
 		this.isFirst = false;
+		this.inRange = false;
 //		this.startX = startX;
 //		this.startY = startY;
 		this.health = 15;
 		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
+		this.bounty = 5;
 	}
 	
 	public boolean getIsFirst()
@@ -48,5 +52,20 @@ public class Goblin extends Image{
 	public int getHealth()
 	{
 		return this.health;
+	}
+	
+	public boolean getInRange()
+	{
+		return this.inRange;
+	}
+	
+	public void setInRange(boolean inRange)
+	{
+		this.inRange = inRange;
+	}
+	
+	public int getBounty()
+	{
+		return this.bounty;
 	}
 }

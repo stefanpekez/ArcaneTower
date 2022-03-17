@@ -38,6 +38,8 @@ public class MainGameScreen implements Screen {
 	
 	private Music gameMusic;
 	
+	private int speed;
+	
 	public MainGameScreen(ArcaneTower game) {
 		this.game = game;
 	}
@@ -90,6 +92,8 @@ public class MainGameScreen implements Screen {
 		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusic.ogg"));
 		gameMusic.setLooping(true);
 		gameMusic.play();
+		
+		this.speed = 1;
 	}
 
 	@Override
@@ -99,7 +103,7 @@ public class MainGameScreen implements Screen {
 		{
 			// PAUSE
 			case 0:
-				stage.act(delta);
+				stage.act(delta * speed);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
@@ -113,12 +117,12 @@ public class MainGameScreen implements Screen {
 				break;
 			// RUN
 			case 1:
-				stage.act(delta);
-				stageUI.act(delta);
+				stage.act(delta * speed);
+				stageUI.act(delta * speed);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
-					bt.resumeTimer();
+					bt.resumeTimer(this.speed);
 				}
 				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -128,8 +132,14 @@ public class MainGameScreen implements Screen {
 				if(infoLabels.getGoblins().size() > 0)
 					generator.setGoblins(infoLabels.getGoblins());
 				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+				{
+					infoLabels.setFireworks();
+				}
+				
 				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
 				{
+					
 					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
 					{
 						
@@ -138,9 +148,7 @@ public class MainGameScreen implements Screen {
 					{
 						infoLabels.setWaveButton();
 					}
-					
 				}
-					
 				
 				stage.draw();
 				stageUI.draw();
@@ -191,6 +199,16 @@ public class MainGameScreen implements Screen {
 	public int getGameSpeed()
 	{
 		return this.gameSpeed;
+	}
+	
+	public void setEnemySpeed(int speed)
+	{
+		this.speed = speed;
+	}
+	
+	public int getEnemySpeed()
+	{
+		return this.speed;
 	}
 
 }

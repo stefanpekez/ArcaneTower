@@ -64,7 +64,7 @@ public class Tile extends ImageButton {
 	public void setTower(boolean hasTower, TowerType towerType)
 	{
 		this.hasTower = hasTower;
-		this.towerType = TowerType.Ballista;
+		this.towerType = towerType;
 	}
 
 }

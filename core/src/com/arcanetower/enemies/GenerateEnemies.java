@@ -8,7 +8,9 @@ public class GenerateEnemies {
 	private ArrayList<Goblin> goblins;
 	private int currentWave;
 	private int startX, startY;
-//	private int amount;
+	private int rate;
+	private int thresh;
+	private float growthRate;
 	
 	public GenerateEnemies(int startX, int startY, int currentWave)
 	{
@@ -17,45 +19,31 @@ public class GenerateEnemies {
 		this.startY = startY;
 		this.goblins = new ArrayList<Goblin>();
 		this.currentWave = currentWave;
+		this.rate = 3;
+		this.thresh = 15;
+		this.growthRate = 0.5f;
 		generateEnemies();
 	}
 	
 	public ArrayList<Goblin> generateEnemies()
 	{
 		this.goblins.clear();
-		switch (currentWave) {
-		case 0:
-			for (int i = 0; i < 3; ++i) {
+		
+		if(currentWave == 0)
+			for (int i = 0; i < rate; ++i)
 				goblins.add(new Goblin(startX, startY));
+		else
+		{
+			if(rate >= thresh)
+			{
+				growthRate = 0.2f;
 			}
-			break;
-		case 1:
-			for (int i = 0; i < 6; ++i) {
+			rate = rate + (int) (growthRate * rate);
+			
+			for (int i = 0; i < rate; ++i)
 				goblins.add(new Goblin(startX, startY));
-			}
-			break;
-		case 2:
-			for (int i = 0; i < 10; ++i) {
-				goblins.add(new Goblin(startX, startY));
-			}
-			break;
-		case 3:
-			for (int i = 0; i < 15; ++i) {
-				goblins.add(new Goblin(startX, startY));
-			}
-			break;
-		case 4:
-			for (int i = 0; i < 20; ++i) {
-				goblins.add(new Goblin(startX, startY));
-			}
-			break;
 		}
-//		if(currentWave == 0)
-//		{
-//			for (int i = 0; i < 1 + currentWave; ++i) {
-//				goblins.add(new Goblin(startX, startY));
-//			}
-//		}
+		
 		return goblins;
 	}
 	

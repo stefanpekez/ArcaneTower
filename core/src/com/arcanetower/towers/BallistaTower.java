@@ -29,7 +29,8 @@ public class BallistaTower extends Image {
 	private ShapeRenderer sr;
 	private ArrowBallista arrow;
 	private MoveToAction mta;
-	private Timer timer;
+	private Timer timerNormal;
+	private Timer timerFast;
 	private ArrayList<Goblin> goblins;
 	private boolean isHovered;
 	private Sound arrowShot;
@@ -61,73 +62,129 @@ public class BallistaTower extends Image {
 	
 	private void setupTimer()
 	{
-		timer = new Timer();
-		timer.scheduleTask(new Timer.Task() {
+		timerNormal = new Timer();
+		timerNormal.scheduleTask(new Timer.Task() {
 		    @Override
 		    public void run() {
 		    	if(goblins.size() > 0)
 		    	{
-		    		if(checkRadius(goblins.get(0).getX(), goblins.get(0).getY()))
-			        {
-		    			shootArrow(goblins.get(0).getX(), goblins.get(0).getY());
-		    			arrowShot.play();
-			        	goblins.get(0).takeDamage(5);
-			        	if(goblins.get(0).getHealth() <= 0)
-			        	{
-			        		Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"));
-							sound.play();
-			        		goblins.get(0).remove();
-			        		goblins.remove(0);
-			        		infoLabels.addMoney(10);
-			        		return;
-			        	}
-			        }
+		    		checkRadius(goblins);
+		    		for(int i = 0; i < goblins.size(); ++i)
+		    		{
+		    			if(goblins.get(i).getInRange())
+		    			{
+		    				shootArrow(goblins.get(i).getX(), goblins.get(i).getY());
+					    	arrowShot.play();
+						    goblins.get(i).takeDamage(5);
+						    if(goblins.get(i).getHealth() <= 0)
+						    {
+						        Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"));
+								sound.play();
+								infoLabels.addMoney(goblins.get(i).getBounty());
+						        goblins.get(i).remove();
+						        goblins.remove(i);
+						        return;
+						    }
+		    				break;
+		    			}
+		    		}
 		    	}
 		    }
 		}, 0f, 1.5f);
+		
+		timerFast = new Timer();
+		timerFast.scheduleTask(new Timer.Task() {
+			@Override
+		    public void run() {
+		    	if(goblins.size() > 0)
+		    	{
+		    		checkRadius(goblins);
+		    		for(int i = 0; i < goblins.size(); ++i)
+		    		{
+		    			if(goblins.get(i).getInRange())
+		    			{
+		    				shootArrow(goblins.get(i).getX(), goblins.get(i).getY());
+					    	arrowShot.play();
+						    goblins.get(i).takeDamage(5);
+						    if(goblins.get(i).getHealth() <= 0)
+						    {
+						        Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"));
+								sound.play();
+								infoLabels.addMoney(goblins.get(i).getBounty());
+						        goblins.get(i).remove();
+						        goblins.remove(i);
+						        return;
+						    }
+		    				break;
+		    			}
+		    		}
+		    	}
+		    }
+		}, 0f, (1.5f / 2f));
+		timerFast.stop();
 	}
 	
 	public void stopTimer()
 	{
-		timer.stop();
+		timerNormal.stop();
+		timerFast.stop();
 	}
 	
-	public void resumeTimer()
+	public void resumeTimer(int speed)
 	{
-		timer.start();
+		if(speed == 1)
+		{
+			timerNormal.start();
+			timerFast.stop();
+		}
+			
+		else
+		{
+			timerNormal.stop();
+			timerFast.start();
+		}
+			
 	}
 	
-	public boolean checkRadius(float x, float y)
+	public void checkRadius(ArrayList<Goblin> goblins)
 	{
-		float Xn = Math.max(x, Math.min(Xc, x + 31f));
-		float Yn = Math.max(y, Math.min(Yc, y + 31f));
+		for(int i = 0; i < goblins.size(); ++i)
+		{
+			float Xn = Math.max(goblins.get(i).getX(), Math.min(Xc, goblins.get(i).getX() + 31f));
+			float Yn = Math.max(goblins.get(i).getY(), Math.min(Yc, goblins.get(i).getY() + 31f));
 		
-		float Dx = Xn - Xc;
-		float Dy = Yn - Yc;
+			float Dx = Xn - Xc;
+			float Dy = Yn - Yc;
 		
-		if(Dx * Dx + Dy * Dy <= radius * radius)
-			return true;
-		return false;
+			if(Dx * Dx + Dy * Dy <= radius * radius)
+			{
+				goblins.get(i).setInRange(true);
+			}
+			else
+			{
+				goblins.get(i).setInRange(false);
+			}
+				
+		}
 	}
 	
-	public void shootArrow(float x, float y)
+	public void shootArrow(final float x, final float y)
 	{
-		// TODO: shoot goblins
 		mta = new MoveToAction();
 		mta = Actions.moveTo(x  + (32 - 16) / 2, y  + (32 - 16) / 2, 0.05f);
 		arrow = new ArrowBallista();
 		arrow.setPosition(xpos, ypos);
 		arrow.addAction(Actions.sequence(mta, Actions.run(new Runnable() {
-			
+						
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				arrow.remove();
 			}
 		})));
-		this.getStage().addActor(arrow);
-		
+		getStage().addActor(arrow);
 	}
+	
 	
 	@Override
     public void draw(Batch batch, float parentAlpha) {

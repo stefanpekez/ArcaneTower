@@ -18,7 +18,6 @@ import com.arcanetower.ui.TowerPanel;
 import com.arcanetower.utilities.ArrowBallista;
 import com.arcanetower.utilities.TowerType;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -513,6 +512,9 @@ public class TerrainGenerator {
 						// TODO Auto-generated method stub
 						TowerPanel.getInstance(stage, screen).getBallista().setDisabled(false);
 						System.out.println("clicked grass" + tmpCount);
+//						System.out.println("x = " + tile.getX());
+//						System.out.println("y = " + tile.getY());
+//						System.out.println("tileID = " + tile.getTileNum());
                         System.out.println("x = " + tmp.getX());
                         System.out.println("y = " + tmp.getY());
                         System.out.println("IsPath = " + tmpBool);
