@@ -3,7 +3,7 @@ package com.arcanetower.ui;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.arcanetower.enemies.Goblin;
+import com.arcanetower.enemies.Enemy;
 import com.arcanetower.enemies.NextWave;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
@@ -307,9 +307,9 @@ public class InfoLabels {
 		return this.enemyAmount;
 	}
 	
-	public ArrayList<Goblin> getGoblins()
+	public ArrayList<Enemy> getEnemies()
 	{
-		return this.nextWave.getGoblins();
+		return this.nextWave.getEnemies();
 	}
 	
 	public void addMoney(int amount)

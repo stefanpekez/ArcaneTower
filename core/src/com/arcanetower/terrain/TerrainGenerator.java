@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.arcanetower.enemies.Goblin;
+import com.arcanetower.enemies.Enemy;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.tiles.Point;
@@ -18,6 +18,7 @@ import com.arcanetower.ui.TowerPanel;
 import com.arcanetower.utilities.ArrowBallista;
 import com.arcanetower.utilities.TowerType;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -56,7 +57,7 @@ public class TerrainGenerator {
 	private MainGameScreen screen;
 	
 	private ArrayList<ArrowBallista> arrows;
-	private ArrayList<Goblin> goblins;
+	private ArrayList<Enemy> enemies;
 	private Stage stageUI;
 	private InfoLabels infoLabels;
 	
@@ -81,7 +82,7 @@ public class TerrainGenerator {
 		
 		this.screen = screen;
 		this.stageUI = stageUI;
-		this.goblins = new ArrayList<Goblin>();
+		this.enemies = new ArrayList<Enemy>();
 		
 		stopGeneration = false;
 		generateStartingTerrain();
@@ -103,12 +104,16 @@ public class TerrainGenerator {
 		final Point tmp = tile.getCoordinates();
 		final boolean tmpBool = tile.getIsPath();
 		final int tmpCount = randomStart;
-		tile.addListener(new ClickListener() {
+		tile.addListener(new ClickListener(Buttons.RIGHT) {
             public void clicked(InputEvent event, float x, float y) {
                  System.out.println("clicked path" + tmpCount);
                  System.out.println("x = " + tmp.getX());
                  System.out.println("y = " + tmp.getY());
                  System.out.println("IsPath = " + tmpBool);
+                 
+                 Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+				ballista.setDisabled(false);
+				screen.setGameSpeed(1);
              }
             
             @Override
@@ -149,13 +154,17 @@ public class TerrainGenerator {
 		final Point tmpStart = tileStart.getCoordinates();
 		final boolean tmpBoolStart = tileStart.getIsPath();
 		final int tmpCountStart = randomStart + 15;
-		tileStart.addListener(new ClickListener() {
+		tileStart.addListener(new ClickListener(Buttons.RIGHT) {
 			@Override
             public void clicked(InputEvent event, float x, float y) {
             	System.out.println("clicked path" + tmpCountStart);
                 System.out.println("x = " + tmpStart.getX());
                 System.out.println("y = " + tmpStart.getY());
                 System.out.println("IsPath = " + tmpBoolStart);
+                
+                Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+				ballista.setDisabled(false);
+				screen.setGameSpeed(1);
                  
              }
 			@Override
@@ -223,12 +232,16 @@ public class TerrainGenerator {
 	            	final Point tmp = pathNew.getCoordinates();
 	            	final boolean tmpBool = pathNew.getIsPath();
 	            	final int tmpCountNorth = lastId + 1;
-	            	pathNew.addListener(new ClickListener() {
+	            	pathNew.addListener(new ClickListener(Buttons.RIGHT) {
 	                   public void clicked(InputEvent event, float x, float y) {
 	                        System.out.println("clicked path" + tmpCountNorth);
 	                        System.out.println("x = " + tmp.getX());
 	                        System.out.println("y = " + tmp.getY());
 	                        System.out.println("IsPath = " + tmpBool);
+	                        
+	                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+    						ballista.setDisabled(false);
+    						screen.setGameSpeed(1);
 	                    }
 	                   
 	                   @Override
@@ -270,12 +283,16 @@ public class TerrainGenerator {
 	            	final Point tmpEast = pathNew.getCoordinates();
 	            	final boolean tmpBoolEast = pathNew.getIsPath();
 	            	final int tmpCountEast = lastId + 15;
-	            	pathNew.addListener(new ClickListener() {
+	            	pathNew.addListener(new ClickListener(Buttons.RIGHT) {
 	                   public void clicked(InputEvent event, float x, float y) {
 	                        System.out.println("clicked path" + tmpCountEast);
 	                        System.out.println("x = " + tmpEast.getX());
 	                        System.out.println("y = " + tmpEast.getY());
 	                        System.out.println("IsPath = " + tmpBoolEast);
+	                        
+	                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+    						ballista.setDisabled(false);
+    						screen.setGameSpeed(1);
 	                    }
 	                   
 	                   @Override
@@ -320,12 +337,16 @@ public class TerrainGenerator {
 	            	final Point tmpSouth = pathNew.getCoordinates();
 	            	final boolean tmpBoolSouth = pathNew.getIsPath();
 	            	final int tmpCountSouth = lastId - 1;
-	            	pathNew.addListener(new ClickListener() {
+	            	pathNew.addListener(new ClickListener(Buttons.RIGHT) {
 	                   public void clicked(InputEvent event, float x, float y) {
 	                        System.out.println("clicked path" + tmpCountSouth);
 	                        System.out.println("x = " + tmpSouth.getX());
 	                        System.out.println("y = " + tmpSouth.getY());
 	                        System.out.println("IsPath = " + tmpBoolSouth);
+	                        
+	                        Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
+    						ballista.setDisabled(false);
+    						screen.setGameSpeed(1);
 	                    }
 	                   
 	                   @Override
@@ -483,6 +504,11 @@ public class TerrainGenerator {
         		final boolean tmpBool = tile.getIsPath();
         		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
+        			
+        			@Override
+        			public void clicked(InputEvent event, float x, float y) {
+        				// TODO Auto-generated method stub
+        			}
                     
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -511,16 +537,16 @@ public class TerrainGenerator {
 					public void changed(ChangeEvent event, Actor actor) {
 						// TODO Auto-generated method stub
 						TowerPanel.getInstance(stage, screen).getBallista().setDisabled(false);
-						System.out.println("clicked grass" + tmpCount);
+//						System.out.println("clicked grass" + tmpCount);
 //						System.out.println("x = " + tile.getX());
 //						System.out.println("y = " + tile.getY());
 //						System.out.println("tileID = " + tile.getTileNum());
-                        System.out.println("x = " + tmp.getX());
-                        System.out.println("y = " + tmp.getY());
-                        System.out.println("IsPath = " + tmpBool);
+//                        System.out.println("x = " + tmp.getX());
+//                        System.out.println("y = " + tmp.getY());
+//                        System.out.println("IsPath = " + tmpBool);
 						if(ballista.isDisabled() && !tile.getHasTower() && infoLabels.removeMoney(50))
 						{
-							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), goblins, infoLabels));
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), enemies, infoLabels));
 //							System.out.println(placed.getPlacedTowers().size());
 							
 							final BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
@@ -591,11 +617,11 @@ public class TerrainGenerator {
 		return this.gridMap;
 	}
 	
-	public void setGoblins(ArrayList<Goblin> goblins)
+	public void setGoblins(ArrayList<Enemy> enemies)
 	{
-		this.goblins = goblins;
+		this.enemies = enemies;
 		for(BallistaTower bt: placed.getPlacedTowers())
-			bt.setGoblins(goblins);
+			bt.setEnemies(enemies);
 	}
 	
 	public PlacedTowers getPlacedTowers()

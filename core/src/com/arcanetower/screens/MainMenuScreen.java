@@ -1,13 +1,15 @@
 package com.arcanetower.screens;
 
 import com.arcanetower.game.ArcaneTower;
+import com.arcanetower.utilities.MenuBackground;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class MainMenuScreen implements Screen{
 	
@@ -18,79 +20,81 @@ public class MainMenuScreen implements Screen{
 	
 	private ArcaneTower game;
 	
-	private Sprite playActiveSprite;
-	private Sprite playInactiveSprite;
-	private Sprite exitActiveSprite;
-	private Sprite exitInactiveSprite;
+	private Stage stageMenu;
+	private Stage stageBackground;
+	private Image gameLogo;
+	
+	private MainMenu mainMenu;
+	private MenuBackground gameBackground;
 	
 	private OrthographicCamera camera;
 	
 	public MainMenuScreen(ArcaneTower game) {
 		this.game = game;
-		playActiveSprite = new Sprite(new Texture(Gdx.files.internal("playActive.png")));
-		playActiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, PLAY_BUTTON_Y_POS);
-		
-		playInactiveSprite = new Sprite(new Texture(Gdx.files.internal("playInactive.png")));
-		playInactiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, PLAY_BUTTON_Y_POS);
-		
-		exitActiveSprite = new Sprite(new Texture(Gdx.files.internal("exitActive.png")));
-		exitActiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, EXIT_BUTTON_Y_POS);
-		
-		exitInactiveSprite = new Sprite(new Texture(Gdx.files.internal("exitInactive.png")));
-		exitInactiveSprite.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2, EXIT_BUTTON_Y_POS);
-		
-		playInactiveSprite.flip(false, true);
-		playActiveSprite.flip(false, true);
-		
-		exitActiveSprite.flip(false, true);
-		exitInactiveSprite.flip(false, true);
 	}
 
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
 		camera = new OrthographicCamera(ArcaneTower.SCREEN_WIDTH, ArcaneTower.SCREEN_HEIGTH);
-		camera.setToOrtho(true);
+		camera.setToOrtho(false, ArcaneTower.SCREEN_WIDTH, ArcaneTower.SCREEN_HEIGTH);
 		camera.position.set(ArcaneTower.SCREEN_WIDTH / 2, ArcaneTower.SCREEN_HEIGTH / 2, 0);
 		camera.update();
+		
+		stageBackground = new Stage();
+		Gdx.input.setInputProcessor(stageBackground);
+		
+		gameBackground = new MenuBackground(stageBackground);
+		
+		stageMenu = new Stage();
+		
+		gameLogo = new Image(new Texture(Gdx.files.internal("menu\\ArcaneTowerLogoResized.png")));
+		gameLogo.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - gameLogo.getWidth() / 2, 275);
+		
+		stageMenu.addActor(gameLogo);
+		
+		mainMenu = new MainMenu(gameLogo, stageMenu, game);
+		
+		Gdx.input.setInputProcessor(stageMenu);
+		
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(stageMenu);
+		inputMultiplexer.addProcessor(stageBackground);
+		
+		Gdx.input.setInputProcessor(inputMultiplexer);
 	}
 
 	@Override
 	public void render(float delta) {
 		// TODO Auto-generated method stub
+		stageMenu.act(delta);
+		stageBackground.act(delta);
+		
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		game.getBatch().setProjectionMatrix(camera.combined);
-		game.getBatch().begin();
+		gameBackground.getNextWave().setEnemyAmount(gameBackground.getNextWave().getEnemies().size());
 		
-		int x = ArcaneTower.SCREEN_WIDTH / 2 - BUTTON_WIDTH / 2;
+		if(gameBackground.getNextWave().getEnemies().size() > 0)
+		{
+			gameBackground.getGenerator().setEnemies(gameBackground.getNextWave().getEnemies());
+		}
+			
 		
-		if(Gdx.input.getX() > x && Gdx.input.getX() < x + BUTTON_WIDTH 
-				&& Gdx.input.getY() < PLAY_BUTTON_Y_POS + BUTTON_HEIGHT && Gdx.input.getY() > PLAY_BUTTON_Y_POS)
+		if(gameBackground.getNextWave().getEnemyAmount() == 0 && gameBackground.getNextWave().getMaxWave() != gameBackground.getNextWave().getCurrentWave())
 		{
 			
-			playActiveSprite.draw(game.getBatch());
-			if(Gdx.input.isTouched()) {
-				Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
-				sound.play();
-				game.setScreen(new MainGameScreen(game));
+			if(gameBackground.getNextWave().getMaxWave() == gameBackground.getNextWave().getCurrentWave())
+			{
 			}
-			
-		} else playInactiveSprite.draw(game.getBatch());
-		
-		if(Gdx.input.getX() > x && Gdx.input.getX() < x + BUTTON_WIDTH 
-				&& Gdx.input.getY() < EXIT_BUTTON_Y_POS + BUTTON_HEIGHT && Gdx.input.getY() > EXIT_BUTTON_Y_POS)
-		{
-			
-			exitActiveSprite.draw(game.getBatch());
-			if(Gdx.input.isTouched()) {
-				Gdx.app.exit();
+			else
+			{
+				gameBackground.getNextWave().loadEnemies();
 			}
-			
-		} else exitInactiveSprite.draw(game.getBatch());
+		}
 		
-		game.getBatch().end();
+		stageBackground.draw();
+		stageMenu.draw();
 		
 	}
 

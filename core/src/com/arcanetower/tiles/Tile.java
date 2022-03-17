@@ -11,6 +11,8 @@ public class Tile extends ImageButton {
 	private int tileNum;
 	private boolean hasTower;
 	private TowerType towerType;
+	private boolean[] sides;
+//	private ArrayList<Boolean> sides;
 	
 	public Tile(Drawable drawable)
 	{
@@ -24,6 +26,11 @@ public class Tile extends ImageButton {
 		this.isPath = isPath;
 		this.hasTower = false;
 		this.towerType = TowerType.None;
+		this.sides = new boolean[4];
+		this.sides[0] = false;
+		this.sides[1] = false;
+		this.sides[2] = false;
+		this.sides[3] = false;
 	}
 	
 	public void setCoordinates(int x, int y)
@@ -36,9 +43,9 @@ public class Tile extends ImageButton {
 		return this.tileID;
 	}
 	
-	public void setIsPath()
+	public void setIsPath(boolean isPath)
 	{
-		this.isPath = true;
+		this.isPath = isPath;
 	}
 	
 	public boolean getIsPath()
@@ -65,6 +72,11 @@ public class Tile extends ImageButton {
 	{
 		this.hasTower = hasTower;
 		this.towerType = towerType;
+	}
+	
+	public boolean[] getSides()
+	{
+		return this.sides;
 	}
 
 }

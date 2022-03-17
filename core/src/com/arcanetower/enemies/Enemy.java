@@ -1,32 +1,32 @@
 package com.arcanetower.enemies;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
-public class Goblin extends Image{
+public class Enemy extends Image{
 	
 	private int health;
 	private boolean isFirst;
 	private Rectangle bounds;
 	private boolean inRange;
 	private int bounty;
-//	private int startX;
-//	private int startY;
+	private int heartDmg;
+	private Sound deathSound;
 	
-	public Goblin(int startX, int startY)
+	public Enemy(Texture enemyTexture, int startX, int startY, int health, int bounty, int heartDmg , Sound deathSound)
 	{
-		super(new Texture(Gdx.files.internal("goblin32.png")));
+		super(enemyTexture);
 		setPosition(startX, startY);
 		
 		this.isFirst = false;
 		this.inRange = false;
-//		this.startX = startX;
-//		this.startY = startY;
-		this.health = 15;
+		this.health = health;
 		this.bounds = new Rectangle((int)getX(), (int)getY(), (int)getWidth(), (int)getHeight());
-		this.bounty = 5;
+		this.bounty = bounty;
+		this.heartDmg = heartDmg;
+		this.deathSound = deathSound;
 	}
 	
 	public boolean getIsFirst()
@@ -68,4 +68,20 @@ public class Goblin extends Image{
 	{
 		return this.bounty;
 	}
+	
+	public int getHeartDMG()
+	{
+		return this.heartDmg;
+	}
+	
+	public Sound getDeathSound()
+	{
+		return this.deathSound;
+	}
+	
+	public void playDeathSound()
+	{
+		this.deathSound.play();
+	}
+
 }

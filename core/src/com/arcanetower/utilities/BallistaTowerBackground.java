@@ -1,10 +1,9 @@
-package com.arcanetower.towers;
+package com.arcanetower.utilities;
 
 import java.util.ArrayList;
 
 import com.arcanetower.enemies.Enemy;
 import com.arcanetower.ui.InfoLabels;
-import com.arcanetower.utilities.ArrowBallista;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
@@ -16,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Timer;
 
-public class BallistaTower extends Image {
+public class BallistaTowerBackground extends Image {
 	
 	private float xpos;
 	private float ypos;
@@ -36,9 +35,9 @@ public class BallistaTower extends Image {
 	private Sound arrowShot;
 	private InfoLabels infoLabels;
 	
-	public BallistaTower(float xpos, float ypos, ArrayList<Enemy> enemies, InfoLabels infoLabels)
+	public BallistaTowerBackground(float xpos, float ypos, ArrayList<Enemy> enemies)
 	{
-		super(new Texture(Gdx.files.internal("ballistaTower.png")));
+		super(new Texture(Gdx.files.internal("menu\\ballistaTowerBG.png")));
 		this.xpos = xpos;
 		this.ypos = ypos;
 		
@@ -52,12 +51,9 @@ public class BallistaTower extends Image {
 		this.enemies = enemies;
 		this.isHovered = false;
 		
-		this.arrowShot = Gdx.audio.newSound(Gdx.files.internal("effects\\shoot.ogg"));
-		
-		this.infoLabels = infoLabels;
+//		this.arrowShot = Gdx.audio.newSound(Gdx.files.internal("effects\\shoot.ogg"));
 		
 		setupTimer();
-		sr = new ShapeRenderer();
 	}
 	
 	private void setupTimer()
@@ -74,12 +70,9 @@ public class BallistaTower extends Image {
 		    			if(enemies.get(i).getInRange())
 		    			{
 		    				shootArrow(enemies.get(i).getX(), enemies.get(i).getY());
-					    	arrowShot.play();
 					    	enemies.get(i).takeDamage(5);
 						    if(enemies.get(i).getHealth() <= 0)
 						    {
-						    	enemies.get(i).playDeathSound();
-								infoLabels.addMoney(enemies.get(i).getBounty());
 								enemies.get(i).remove();
 								enemies.remove(i);
 						        return;
@@ -89,59 +82,7 @@ public class BallistaTower extends Image {
 		    		}
 		    	}
 		    }
-		}, 0f, 1.5f);
-		
-		timerFast = new Timer();
-		timerFast.scheduleTask(new Timer.Task() {
-			@Override
-		    public void run() {
-		    	if(enemies.size() > 0)
-		    	{
-		    		checkRadius(enemies);
-		    		for(int i = 0; i < enemies.size(); ++i)
-		    		{
-		    			if(enemies.get(i).getInRange())
-		    			{
-		    				shootArrow(enemies.get(i).getX(), enemies.get(i).getY());
-					    	arrowShot.play();
-					    	enemies.get(i).takeDamage(5);
-						    if(enemies.get(i).getHealth() <= 0)
-						    {
-						    	enemies.get(i).playDeathSound();
-								infoLabels.addMoney(enemies.get(i).getBounty());
-						        enemies.get(i).remove();
-						        enemies.remove(i);
-						        return;
-						    }
-		    				break;
-		    			}
-		    		}
-		    	}
-		    }
-		}, 0f, (1.5f / 2f));
-		timerFast.stop();
-	}
-	
-	public void stopTimer()
-	{
-		timerNormal.stop();
-		timerFast.stop();
-	}
-	
-	public void resumeTimer(int speed)
-	{
-		if(speed == 1)
-		{
-			timerNormal.start();
-			timerFast.stop();
-		}
-			
-		else
-		{
-			timerNormal.stop();
-			timerFast.start();
-		}
-			
+		}, 0f, 1.0f);
 	}
 	
 	public void checkRadius(ArrayList<Enemy> enemies)
@@ -182,27 +123,6 @@ public class BallistaTower extends Image {
 		})));
 		getStage().addActor(arrow);
 	}
-	
-	
-	@Override
-    public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
-        if(isHovered == false)
-        	return;
-
-        batch.end();
-        
-        sr.setProjectionMatrix(batch.getProjectionMatrix());
-        sr.setColor(Color.BLACK);
-        
-        sr.begin(ShapeRenderer.ShapeType.Line);
-
-
-        sr.circle(h + this.getWidth() / 2, k + this.getHeight() / 2, radius, 500);
-        sr.end();
-
-        batch.begin();
-    }
 	
 	public void setIsHovered(boolean isHovered)
 	{

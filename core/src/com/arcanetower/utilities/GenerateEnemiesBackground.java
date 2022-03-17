@@ -1,12 +1,13 @@
-package com.arcanetower.enemies;
+package com.arcanetower.utilities;
 
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.arcanetower.enemies.Enemy;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-public class GenerateEnemies {
+public class GenerateEnemiesBackground {
 	
 	private ArrayList<Enemy> enemies;
 	private int currentWave;
@@ -18,7 +19,7 @@ public class GenerateEnemies {
 	private Random rand;
 	private ArrayList<Integer> skeletonPositions;
 	
-	public GenerateEnemies(int startX, int startY, int currentWave)
+	public GenerateEnemiesBackground(int startX, int startY, int currentWave)
 	{
 		this.startX = startX;
 		this.startY = startY;
@@ -41,13 +42,13 @@ public class GenerateEnemies {
 		
 		if(currentWave == 0)
 			for (int i = 0; i < rate; ++i)
-					enemies.add(new Enemy(new Texture(Gdx.files.internal("goblin32.png")), startX, startY, 
+					enemies.add(new Enemy(new Texture(Gdx.files.internal("menu\\goblin32BG.png")), startX, startY, 
 							10, 5, 1, Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"))));
 		else
 		{
-			if(rate >= thresh)
+			if(rate >= 15)
 			{
-				growthRate = 0.2f;
+				growthRate = 0f;
 			}
 			rate = rate + (int) (growthRate * rate);
 			skeletonAmount = (int) (rate * 0.25f);
@@ -61,13 +62,13 @@ public class GenerateEnemies {
 			{
 				if(skeletonPositions.contains(i))
 				{
-					enemies.add(new Enemy(new Texture(Gdx.files.internal("skeleton32.png")), startX, startY, 
+					enemies.add(new Enemy(new Texture(Gdx.files.internal("menu\\skeleton32BG.png")), startX, startY, 
 							25, 10, 2, Gdx.audio.newSound(Gdx.files.internal("effects\\skeletonDeath.ogg"))));
 					--skeletonAmount;
 					continue;
 				} else
 				{
-					enemies.add(new Enemy(new Texture(Gdx.files.internal("goblin32.png")), startX, startY, 
+					enemies.add(new Enemy(new Texture(Gdx.files.internal("menu\\goblin32BG.png")), startX, startY, 
 							10, 5, 1, Gdx.audio.newSound(Gdx.files.internal("effects\\goblinDeath.ogg"))));
 				}
 			}
@@ -98,7 +99,4 @@ public class GenerateEnemies {
 	public int getStartY() {
 		return startY;
 	}
-	
-	
-
 }
