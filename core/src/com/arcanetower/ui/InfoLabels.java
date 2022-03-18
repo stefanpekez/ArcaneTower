@@ -8,26 +8,38 @@ import com.arcanetower.enemies.NextWave;
 import com.arcanetower.game.ArcaneTower;
 import com.arcanetower.screens.MainGameScreen;
 import com.arcanetower.terrain.TerrainGenerator;
+import com.arcanetower.towers.TowerButton;
+import com.arcanetower.utilities.HelpDialog;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.Window.WindowStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 
 public class InfoLabels {
+	
+	private CreateFont customFont;
 	
 	private Label waveInfo;
 	private Label currentWave;
@@ -42,9 +54,9 @@ public class InfoLabels {
 	private Label remainingLives;
 	
 //	private ImageButton startWave;
-	private ImageButton pauseButton;
-	private ImageButton playButton;
-	private ImageButton forwardButton;
+	private Image pauseButton;
+	private Image playButton;
+	private Image forwardButton;
 	
 	private Stage stageUI;
 	private Stage stage;
@@ -65,12 +77,19 @@ public class InfoLabels {
 	private Sound fireworksTrail;
 	private Sound fireworksBang;
 	
-	private int i;
-	private Timer timer;
+	private TextureRegionDrawable inactivePause;
+	private TextureRegionDrawable activePause;
 	
-	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, MainGameScreen mainGameScreen, Stage stage)
+	private TextureRegionDrawable inactivePlay;
+	private TextureRegionDrawable activePlay;
+	
+	private TextureRegionDrawable inactiveForward;
+	private TextureRegionDrawable activeForward;
+	
+	public InfoLabels(Stage stageUI, TerrainGenerator generatorTerrain, SpriteBatch batch, 
+			MainGameScreen mainGameScreen, Stage stage, TowerButton ballista)
 	{
-		CreateFont customFont = new CreateFont();
+		customFont = new CreateFont();
 		this.waveInfo = new Label("Wave:", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		this.currentWave = new Label("0", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		this.separator = new Label("/", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
@@ -90,14 +109,17 @@ public class InfoLabels {
 		this.lives = new Image(new Texture(Gdx.files.internal("heart24.png")));
 		this.remainingLives = new Label("20", new Label.LabelStyle(customFont.getTextFont(), Color.LIGHT_GRAY));
 		
-		Drawable drawablePause = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause32.png")));
-		this.pauseButton = new ImageButton(drawablePause);
+		inactivePause = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause32.png")));
+		activePause = new TextureRegionDrawable(new Texture(Gdx.files.internal("pause32Active.png")));
+		this.pauseButton = new Image(inactivePause);
 		
-		Drawable drawablePlay = new TextureRegionDrawable(new Texture(Gdx.files.internal("play32.png")));
-		this.playButton = new ImageButton(drawablePlay);
+		inactivePlay = new TextureRegionDrawable(new Texture(Gdx.files.internal("play32.png")));
+		activePlay = new TextureRegionDrawable(new Texture(Gdx.files.internal("play32Active.png")));
+		this.playButton = new Image(inactivePlay);
 		
-		Drawable drawableForward = new TextureRegionDrawable(new Texture(Gdx.files.internal("forward32.png")));
-		this.forwardButton = new ImageButton(drawableForward);
+		inactiveForward = new TextureRegionDrawable(new Texture(Gdx.files.internal("fast36.png")));
+		activeForward = new TextureRegionDrawable(new Texture(Gdx.files.internal("fast36Active.png")));
+		this.forwardButton = new Image(inactiveForward);
 		
 		this.stageUI = stageUI;
 		this.stage = stage;
@@ -120,20 +142,9 @@ public class InfoLabels {
 		this.fireworksTrail = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksSound.ogg"));
 		this.fireworksBang = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksBang.ogg"));
 		
-		this.i = 0;
-		this.timer = new Timer();
-		this.timer.scheduleTask(new Task() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				++i;
-				System.out.println(i);
-			}
-		}, 0f, 1f);
-		this.timer.stop();
 		
 		setPositions();
+		setHovering();
 		addActionToButtons(this.generatorTerrain, this.remainingLives, this.screen);
 		addToStage();
 	}
@@ -151,11 +162,12 @@ public class InfoLabels {
 		this.remainingLives.setPosition(this.lives.getX() + this.lives.getWidth() + 10, ArcaneTower.SCREEN_HEIGTH - 1 * 32);
 		this.pauseButton.setPosition(ArcaneTower.SCREEN_WIDTH - 5 * 32 - 16, ArcaneTower.SCREEN_HEIGTH - 2 * 32 + 15);
 		this.playButton.setPosition(pauseButton.getX() + 36, ArcaneTower.SCREEN_HEIGTH - 2 * 32 + 15);
-		this.forwardButton.setPosition(playButton.getX() + 36, ArcaneTower.SCREEN_HEIGTH - 2 * 32 + 15);
+		this.forwardButton.setPosition(playButton.getX() + 36, ArcaneTower.SCREEN_HEIGTH - 2 * 32 + 13);
 		
 		this.anim.setPosition(startX + (32 - 24) / 2, startY + (32 - 24) / 2);
 		
 		this.pressSpace.setPosition(5 * 32 + 16, 1 * 32);
+		
 	}
 	
 	private void addToStage()
@@ -185,6 +197,9 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
+				if(screen.getEnemySpeed() == 1)
+					return;
+				System.out.println("play");
 				screen.setGameSpeed(1);
 				screen.setEnemySpeed(1);
 			}
@@ -195,7 +210,11 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
+				if(screen.getEnemySpeed() == 0)
+					return;
+				System.out.println("pause");
 				screen.setGameSpeed(0);
+				screen.setEnemySpeed(0);
 			}
 		});
 		
@@ -204,6 +223,10 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
+				if(screen.getEnemySpeed() == 2)
+					return;
+							
+				System.out.println("fast");
 				screen.setGameSpeed(1);
 				screen.setEnemySpeed(2);
 			}
@@ -214,18 +237,19 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
+				if(screen.getEnemySpeed() == 0)
+				{
+					return;
+				}
 				if(nextWave.getCurrentWave() + 1 == Integer.parseInt(maxWave.getText().toString()) + 1)
 				{
 					return;
 				}
-				i = 0;
-				timer.start();
 				pressSpace.setVisible(false);
 				Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
 				sound.play();
 				nextWave.loadEnemies();
 				currentWave.setText(nextWave.getCurrentWave());
-				System.out.println("Clicked skull");
 				anim.setVisible(false);
 				anim.setDisabled(true);
 			}
@@ -244,8 +268,6 @@ public class InfoLabels {
 						{
 							return false;
 						}
-//						i = 0;
-//						timer.start();
 						pressSpace.setVisible(false);
 						Sound sound = Gdx.audio.newSound(Gdx.files.internal("effects\\buttonClick.ogg"));
 						sound.play();
@@ -257,14 +279,27 @@ public class InfoLabels {
 					}
 					return false;
 			    case Input.Keys.NUM_1:
-			    	screen.setGameSpeed(0);
+			    	if(screen.getEnemySpeed() == 0)
+			    		return true;
+			    	
+				    System.out.println("pause");
+				    screen.setGameSpeed(0);
+				    screen.setEnemySpeed(0);
 			    	return true;
 			    case Input.Keys.NUM_2:
-			    	screen.setGameSpeed(1);
+			    	if(screen.getEnemySpeed() == 1)
+			    		return true;
+			    	
+			    	System.out.println("play");
+				    screen.setGameSpeed(1);
+				    screen.setEnemySpeed(1);
 			    	return true;
 			    case Input.Keys.NUM_3:
-//			    	screen.setGameSpeed(2);
-			    	System.out.println("Faster");
+			    	if(screen.getEnemySpeed() == 2)
+			    		return true;
+				    System.out.println("Faster");
+				    screen.setGameSpeed(1);
+				    screen.setEnemySpeed(2);
 			    	return true;
 			    }
 				return false;
@@ -288,13 +323,18 @@ public class InfoLabels {
 		return this.remainingLives;
 	}
 	
-	public void setWaveButton()
+	public void setWaveButtonPause()
 	{
-		timer.stop();
 		pressSpace.setVisible(true);
 		anim.setVisible(true);
 		anim.setDisabled(false);
-		
+	}
+	
+	public void setWaveButtonPlay()
+	{
+		pressSpace.setVisible(true);
+		anim.setVisible(true);
+		anim.setDisabled(false);
 	}
 	
 	public void setEnemyAmount(int enemyAmount)
@@ -350,6 +390,9 @@ public class InfoLabels {
 		final Random rand = new Random();
 		final int randomX = rand.nextInt((23 - 1) + 1) + 1;
 		final int randomY = rand.nextInt((14 - 1) + 1) + 1;
+		screen.setEnemySpeed(1);
+		screen.setGameSpeed(1);
+		screen.getMusic().stop();
 		
 		final Image fireworkTrail = new Image(new Texture(Gdx.files.internal("fireworkTrail.png")));
 		fireworkTrail.setPosition((randomX) * 32, -32);
@@ -382,6 +425,54 @@ public class InfoLabels {
 				})));
 			}
 		})));
+	}
+	
+	private void setHovering()
+	{
+		this.pauseButton.addListener(new ClickListener()
+		{
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				// TODO Auto-generated method stub
+				pauseButton.setDrawable(activePause);
+			}
+					
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				// TODO Auto-generated method stub
+				pauseButton.setDrawable(inactivePause);
+			}
+		});
+		
+		this.playButton.addListener(new ClickListener()
+		{
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				// TODO Auto-generated method stub
+				playButton.setDrawable(activePlay);
+			}
+					
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				// TODO Auto-generated method stub
+				playButton.setDrawable(inactivePlay);
+			}
+		});
+		
+		this.forwardButton.addListener(new ClickListener()
+		{
+			@Override
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				// TODO Auto-generated method stub
+				forwardButton.setDrawable(activeForward);
+			}
+					
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				// TODO Auto-generated method stub
+				forwardButton.setDrawable(inactiveForward);
+			}
+		});
 	}
 	
 }

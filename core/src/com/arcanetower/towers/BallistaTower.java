@@ -35,6 +35,7 @@ public class BallistaTower extends Image {
 	private boolean isHovered;
 	private Sound arrowShot;
 	private InfoLabels infoLabels;
+	private ArrayList<ArrowBallista> arrowsShot;
 	
 	public BallistaTower(float xpos, float ypos, ArrayList<Enemy> enemies, InfoLabels infoLabels)
 	{
@@ -53,6 +54,7 @@ public class BallistaTower extends Image {
 		this.isHovered = false;
 		
 		this.arrowShot = Gdx.audio.newSound(Gdx.files.internal("effects\\shoot.ogg"));
+		this.arrowsShot = new ArrayList<ArrowBallista>();
 		
 		this.infoLabels = infoLabels;
 		

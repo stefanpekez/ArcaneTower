@@ -1,10 +1,12 @@
 package com.arcanetower.screens;
 
 import com.arcanetower.game.ArcaneTower;
-import com.arcanetower.utilities.MenuBackground;
+import com.arcanetower.menubackground.MainMenu;
+import com.arcanetower.menubackground.MenuBackground;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -29,6 +31,8 @@ public class MainMenuScreen implements Screen{
 	
 	private OrthographicCamera camera;
 	
+	private Music menuMusic;
+	
 	public MainMenuScreen(ArcaneTower game) {
 		this.game = game;
 	}
@@ -41,19 +45,22 @@ public class MainMenuScreen implements Screen{
 		camera.position.set(ArcaneTower.SCREEN_WIDTH / 2, ArcaneTower.SCREEN_HEIGTH / 2, 0);
 		camera.update();
 		
+		this.menuMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\menuTheme.ogg"));
+		this.menuMusic.setLooping(true);
+		this.menuMusic.play();
+		
 		stageBackground = new Stage();
-		Gdx.input.setInputProcessor(stageBackground);
 		
 		gameBackground = new MenuBackground(stageBackground);
 		
 		stageMenu = new Stage();
 		
-		gameLogo = new Image(new Texture(Gdx.files.internal("menu\\ArcaneTowerLogoResized.png")));
+		gameLogo = new Image(new Texture(Gdx.files.internal("menu\\ArcaneTowerLogo.png")));
 		gameLogo.setPosition(ArcaneTower.SCREEN_WIDTH / 2 - gameLogo.getWidth() / 2, 275);
 		
 		stageMenu.addActor(gameLogo);
 		
-		mainMenu = new MainMenu(gameLogo, stageMenu, game);
+		mainMenu = new MainMenu(gameLogo, stageMenu, game, this.menuMusic);
 		
 		Gdx.input.setInputProcessor(stageMenu);
 		
@@ -62,6 +69,8 @@ public class MainMenuScreen implements Screen{
 		inputMultiplexer.addProcessor(stageBackground);
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
+		
+		
 	}
 
 	@Override

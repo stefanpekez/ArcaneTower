@@ -5,6 +5,7 @@ import com.arcanetower.terrain.TerrainGenerator;
 import com.arcanetower.towers.BallistaTower;
 import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.ui.TowerPanel;
+import com.arcanetower.utilities.ArrowBallista;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputMultiplexer;
@@ -29,6 +30,7 @@ public class MainGameScreen implements Screen {
 	private OrthographicCamera camera;
 	private Stage stage;
 	private Stage stageUI;
+	private Stage stageDialog;
 	
 	private TerrainGenerator generator;
 	private Image infoBar;
@@ -56,10 +58,15 @@ public class MainGameScreen implements Screen {
 		camera.position.set(ArcaneTower.SCREEN_WIDTH / 2, ArcaneTower.SCREEN_HEIGTH / 2, 0);
 		camera.update();
 		
+		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusicNew.ogg"));
+		gameMusic.setLooping(true);
+		gameMusic.play();
+		
 		this.gameSpeed = 1;
 		
 		stage = new Stage();
 		stageUI = new Stage();
+		stageDialog = new Stage();
 		towerPanel = new TowerPanel(stageUI, this);
 		generator = new TerrainGenerator(stage, towerPanel, this, stageUI);
 		
@@ -68,7 +75,7 @@ public class MainGameScreen implements Screen {
 		
 		stageUI.addActor(infoBar);
 		
-		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch(), this, stage);
+		infoLabels = new InfoLabels(stageUI, generator, this.game.getBatch(), this, stage, towerPanel.getBallista());
 		
 		towerPanel.setInfoLabels(infoLabels);
 		
@@ -76,6 +83,14 @@ public class MainGameScreen implements Screen {
 		
 		corner = new Image(new Texture(Gdx.files.internal("corner.png")));
 		corner.setPosition(ArcaneTower.SCREEN_WIDTH - 2 * 32, ArcaneTower.SCREEN_HEIGTH - 2 * 32);
+		corner.addListener(new ClickListener()
+				{
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						// TODO Auto-generated method stub
+						gameMusic.stop();
+					}
+				});
 		
 		stageUI.addActor(corner);
 		
@@ -93,9 +108,7 @@ public class MainGameScreen implements Screen {
 		groupTowers.addActor(towerPanel.getBallista());
 		groupTowers.setZIndex(2);
 		
-		this.gameMusic = Gdx.audio.newMusic(Gdx.files.internal("effects\\gameMusic.ogg"));
-		gameMusic.setLooping(true);
-		gameMusic.play();
+		
 		
 		this.speed = 1;
 		
@@ -124,6 +137,19 @@ public class MainGameScreen implements Screen {
 				{
 					bt.stopTimer();
 				}
+				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
+				{
+					
+					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+					{
+					}
+					else
+					{
+						infoLabels.setWaveButtonPause();
+					}
+				}
+				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 				
@@ -161,15 +187,14 @@ public class MainGameScreen implements Screen {
 					}
 					else
 					{
-						infoLabels.setWaveButton();
+						infoLabels.setWaveButtonPlay();
 					}
 				}
 				
 				stage.draw();
 				stageUI.draw();
-				
 				break;
-			// TODO: FASTER
+			// TODO: DIALOG
 			case 2:
 				break;
 		}
@@ -224,6 +249,11 @@ public class MainGameScreen implements Screen {
 	public int getEnemySpeed()
 	{
 		return this.speed;
+	}
+	
+	public Music getMusic()
+	{
+		return this.gameMusic;
 	}
 
 }
