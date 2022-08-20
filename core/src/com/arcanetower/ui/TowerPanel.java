@@ -93,11 +93,13 @@ public class TowerPanel extends Image{
 				if (!place.getTextureData().isPrepared()) {
 					place.getTextureData().prepare();
 				}
+				ballista.setSpeedBeforeSelect(screen.getGameSpeed());
 				pm = place.getTextureData().consumePixmap();
 				Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 128, 128));
 				ballista.setDisabled(true);
 //				System.out.println(ballista.isDisabled());
 				screen.setGameSpeed(0);
+//				screen.setEnemySpeed(0);
 			}
 		});
 		

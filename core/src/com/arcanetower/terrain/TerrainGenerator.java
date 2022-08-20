@@ -566,7 +566,7 @@ public class TerrainGenerator {
 //                        System.out.println("IsPath = " + tmpBool);
 						if(ballista.isDisabled() && !tile.getHasTower() && infoLabels.removeMoney(50))
 						{
-							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), enemies, infoLabels));
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), enemies, infoLabels, screen.getGameSpeed()));
 //							System.out.println(placed.getPlacedTowers().size());
 							
 							final BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
@@ -585,7 +585,7 @@ public class TerrainGenerator {
 							ballista.setDisabled(false);
 							
 							tile.setTower(true, TowerType.Ballista);
-							screen.setGameSpeed(1);
+							screen.setGameSpeed(ballista.getSpeedBeforeSelect());
 							stageUI.addActor(bt);
 						}
 					}

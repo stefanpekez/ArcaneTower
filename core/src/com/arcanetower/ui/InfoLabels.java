@@ -142,7 +142,6 @@ public class InfoLabels {
 		this.fireworksTrail = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksSound.ogg"));
 		this.fireworksBang = Gdx.audio.newSound(Gdx.files.internal("effects\\fireworksBang.ogg"));
 		
-		
 		setPositions();
 		setHovering();
 		addActionToButtons(this.generatorTerrain, this.remainingLives, this.screen);
@@ -197,11 +196,15 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
-				if(screen.getEnemySpeed() == 1)
+//				if(screen.getEnemySpeed() == 1)
+//					return;
+				if(screen.getGameSpeed() == 1)
 					return;
+				
 				System.out.println("play");
+				
 				screen.setGameSpeed(1);
-				screen.setEnemySpeed(1);
+//				screen.setEnemySpeed(1);
 			}
 		});
 		
@@ -210,11 +213,15 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
-				if(screen.getEnemySpeed() == 0)
+//				if(screen.getEnemySpeed() == 0)
+//					return;
+				
+				if(screen.getGameSpeed() == 0)
 					return;
+				
 				System.out.println("pause");
 				screen.setGameSpeed(0);
-				screen.setEnemySpeed(0);
+//				screen.setEnemySpeed(0);
 			}
 		});
 		
@@ -223,12 +230,14 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
-				if(screen.getEnemySpeed() == 2)
+//				if(screen.getEnemySpeed() == 2)
+//					return;
+				if(screen.getGameSpeed() == 2)
 					return;
 							
 				System.out.println("fast");
-				screen.setGameSpeed(1);
-				screen.setEnemySpeed(2);
+				screen.setGameSpeed(2);
+//				screen.setEnemySpeed(2);
 			}
 		});
 		
@@ -237,7 +246,7 @@ public class InfoLabels {
 			@Override
 			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
-				if(screen.getEnemySpeed() == 0)
+				if(screen.getGameSpeed() == 0)
 				{
 					return;
 				}
@@ -262,6 +271,9 @@ public class InfoLabels {
 				// TODO Auto-generated method stub
 				switch (keycode) {
 				case Input.Keys.SPACE:
+					if(screen.getGameSpeed() == 0)
+						return false;
+					
 					if(pressSpace.isVisible())
 					{
 						if(nextWave.getCurrentWave() + 1 == Integer.parseInt(maxWave.getText().toString()) + 1)

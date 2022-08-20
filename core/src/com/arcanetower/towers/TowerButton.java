@@ -10,6 +10,7 @@ public class TowerButton extends Image {
 //	private ShapeRenderer sr;
 	private boolean isHovered;
 	private boolean isDisabled;
+	private int speedBeforeSelect;
 	
 	public TowerButton(TextureRegionDrawable drawable)
 	{
@@ -18,6 +19,16 @@ public class TowerButton extends Image {
 //		this.sr = new ShapeRenderer();
 		this.isHovered = false;
 		this.isDisabled = false;
+	}
+	
+	public void setSpeedBeforeSelect(int speedBeforeSelect)
+	{
+		this.speedBeforeSelect = speedBeforeSelect;
+	}
+	
+	public int getSpeedBeforeSelect()
+	{
+		return this.speedBeforeSelect;
 	}
 	
 	public boolean getIsClicked()

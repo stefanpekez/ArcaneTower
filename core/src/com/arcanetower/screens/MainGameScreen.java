@@ -120,6 +120,7 @@ public class MainGameScreen implements Screen {
 				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.VerticalResize);
 				towerPanel.getBallista().setDisabled(false);
 				setGameSpeed(1);
+//				setEnemySpeed(1);
 			}
 		});
 	}
@@ -131,10 +132,11 @@ public class MainGameScreen implements Screen {
 		{
 			// PAUSE
 			case 0:
-				stage.act(delta * speed);
+				stage.act(delta * 0);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
+					bt.setSpeed(0);
 					bt.stopTimer();
 				}
 				
@@ -158,12 +160,13 @@ public class MainGameScreen implements Screen {
 				break;
 			// RUN
 			case 1:
-				stage.act(delta * speed);
-				stageUI.act(delta * speed);
+				stage.act(delta * 1);
+				stageUI.act(delta * 1);
 				
 				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
 				{
-					bt.resumeTimer(this.speed);
+					bt.setSpeed(1);
+					bt.resumeTimer(1);
 				}
 				
 				Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -194,8 +197,44 @@ public class MainGameScreen implements Screen {
 				stage.draw();
 				stageUI.draw();
 				break;
-			// TODO: DIALOG
+			// TODO: FAST
 			case 2:
+				stage.act(delta * 2);
+				stageUI.act(delta * 2);
+				
+				for(BallistaTower bt: generator.getPlacedTowers().getPlacedTowers())
+				{
+					bt.setSpeed(2);
+					bt.resumeTimer(2);
+				}
+				
+				Gdx.gl.glClearColor(1, 1, 1, 1);
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				
+				infoLabels.setEnemyAmount(infoLabels.getEnemies().size());
+				
+				if(infoLabels.getEnemies().size() > 0)
+					generator.setGoblins(infoLabels.getEnemies());
+				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+				{
+					infoLabels.setFireworks();
+				}
+				
+				if(infoLabels.getEnemyAmount() == 0 && infoLabels.getMaxWave() != infoLabels.getCurrentWave())
+				{
+					
+					if(infoLabels.getMaxWave() == infoLabels.getCurrentWave())
+					{
+					}
+					else
+					{
+						infoLabels.setWaveButtonPlay();
+					}
+				}
+				
+				stage.draw();
+				stageUI.draw();
 				break;
 		}
 		
