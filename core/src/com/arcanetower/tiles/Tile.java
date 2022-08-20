@@ -1,5 +1,6 @@
 package com.arcanetower.tiles;
 
+import com.arcanetower.utilities.ObstacleType;
 import com.arcanetower.utilities.TowerType;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -12,6 +13,7 @@ public class Tile extends ImageButton {
 	private boolean hasTower;
 	private TowerType towerType;
 	private boolean[] sides;
+	private ObstacleType obstacle;
 //	private ArrayList<Boolean> sides;
 	
 	public Tile(Drawable drawable)
@@ -31,6 +33,7 @@ public class Tile extends ImageButton {
 		this.sides[1] = false;
 		this.sides[2] = false;
 		this.sides[3] = false;
+		this.obstacle = ObstacleType.None;
 	}
 	
 	public void setCoordinates(int x, int y)
@@ -63,6 +66,11 @@ public class Tile extends ImageButton {
 		return this.tileNum;
 	}
 	
+	public void setHasTower(boolean hasTower)
+	{
+		this.hasTower = hasTower;
+	}
+	
 	public boolean getHasTower()
 	{
 		return this.hasTower;
@@ -77,6 +85,16 @@ public class Tile extends ImageButton {
 	public boolean[] getSides()
 	{
 		return this.sides;
+	}
+	
+	public ObstacleType getObstacle()
+	{
+		return this.obstacle;
+	}
+	
+	public void setObstacle(ObstacleType obstacle)
+	{
+		this.obstacle = obstacle;
 	}
 
 }

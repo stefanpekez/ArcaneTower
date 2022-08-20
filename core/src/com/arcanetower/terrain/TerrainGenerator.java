@@ -16,9 +16,11 @@ import com.arcanetower.towers.TowerButton;
 import com.arcanetower.ui.InfoLabels;
 import com.arcanetower.ui.TowerPanel;
 import com.arcanetower.utilities.ArrowBallista;
+import com.arcanetower.utilities.ObstacleType;
 import com.arcanetower.utilities.TowerType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -35,6 +37,7 @@ public class TerrainGenerator {
 	private Stage stage;
 	private HashMap<Integer, Tile> gridMap;
 	private ArrayList<Integer> pathID;
+	private ArrayList<Tile> grassTiles;
 	
 	private int lastId;
 	private boolean stopGeneration;
@@ -45,12 +48,19 @@ public class TerrainGenerator {
 	private Drawable grassTile;
 	private Drawable pathTile;
 	
+	private TextureRegionDrawable grassTree1;
+	private TextureRegionDrawable grassTree2;
+	
+	private TextureRegionDrawable rock1;
+	private TextureRegionDrawable rock2;
+	
 	private final Image grassHighlight;
 	private final Image pathHighlight;
 	
 	private boolean hidePath;
 	
 	private PlacedTowers placed;
+	private Sound placeSound;
 	
 	private TowerButton ballista;
 	
@@ -65,8 +75,14 @@ public class TerrainGenerator {
 	{
 		this.stage = stage;
 		this.gridMap = new HashMap<Integer, Tile>();
-		this.grassTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("grassNoBorder.png")));
-		this.pathTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("pathNoBorder.png")));
+		this.grassTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("grassTex.png")));
+		this.pathTile = new TextureRegionDrawable(new Texture(Gdx.files.internal("dirtTex.png")));
+		
+		this.grassTree1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("tree32.png")));
+		this.grassTree2 = new TextureRegionDrawable(new Texture(Gdx.files.internal("treeRed32.png")));
+		
+		this.rock1 = new TextureRegionDrawable(new Texture(Gdx.files.internal("smallRock32.png")));
+		this.rock2 = new TextureRegionDrawable(new Texture(Gdx.files.internal("rock32.png")));
 		
 		this.grassHighlight = new Image(new Texture(Gdx.files.internal("grassHovered.png")));
 		this.grassHighlight.setVisible(false);
@@ -84,10 +100,16 @@ public class TerrainGenerator {
 		this.stageUI = stageUI;
 		this.enemies = new ArrayList<Enemy>();
 		
+		this.grassTiles = new ArrayList<Tile>();
+		
+//		this.placeSound = Gdx.audio.newSound(Gdx.files.internal("effects\\"));
+		
 		stopGeneration = false;
 		generateStartingTerrain();
 		generatePath();
 		generateGrass();
+		generateTrees();
+		generateRocks();
 //		writePathID();
 //		writeTiles();
 	}
@@ -486,7 +508,6 @@ public class TerrainGenerator {
 	
 	private void generateGrass()
 	{
-		
 		int tileCount = 0;
 		for (int x = 0; x * 32 < ArcaneTower.SCREEN_WIDTH - 2 * 32; ++x)
 		{
@@ -497,18 +518,17 @@ public class TerrainGenerator {
 					++tileCount;
 					continue;
 				}
+				
 				final Tile tile = new Tile(grassTile, false);
+				stage.addActor(tile);
+        		
 				tile.setPosition(x * 32, y * 32);
         		tile.setCoordinates(x, y);
+        		
         		final Point tmp = tile.getCoordinates();
         		final boolean tmpBool = tile.getIsPath();
         		final int tmpCount = tileCount;
         		tile.addListener(new ClickListener() {
-        			
-        			@Override
-        			public void clicked(InputEvent event, float x, float y) {
-        				// TODO Auto-generated method stub
-        			}
                     
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
@@ -537,7 +557,7 @@ public class TerrainGenerator {
 					public void changed(ChangeEvent event, Actor actor) {
 						// TODO Auto-generated method stub
 						TowerPanel.getInstance(stage, screen).getBallista().setDisabled(false);
-//						System.out.println("clicked grass" + tmpCount);
+						System.out.println("clicked grass" + tmpCount);
 //						System.out.println("x = " + tile.getX());
 //						System.out.println("y = " + tile.getY());
 //						System.out.println("tileID = " + tile.getTileNum());
@@ -546,7 +566,7 @@ public class TerrainGenerator {
 //                        System.out.println("IsPath = " + tmpBool);
 						if(ballista.isDisabled() && !tile.getHasTower() && infoLabels.removeMoney(50))
 						{
-							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), enemies, infoLabels));
+							placed.getPlacedTowers().add(new BallistaTower(tile.getX(), tile.getY(), enemies, infoLabels, screen.getGameSpeed()));
 //							System.out.println(placed.getPlacedTowers().size());
 							
 							final BallistaTower bt = placed.getPlacedTowers().get(placed.getPlacedTowers().size()-1);
@@ -565,12 +585,12 @@ public class TerrainGenerator {
 							ballista.setDisabled(false);
 							
 							tile.setTower(true, TowerType.Ballista);
-							screen.setGameSpeed(1);
+							screen.setGameSpeed(ballista.getSpeedBeforeSelect());
 							stageUI.addActor(bt);
 						}
 					}
 				});
-        		stage.addActor(tile);
+        		grassTiles.add(tile);
         		gridMap.put(tileCount, tile);
         		tile.setTileNum(tileCount);
         		++tileCount;
@@ -633,4 +653,66 @@ public class TerrainGenerator {
 	{
 		this.infoLabels = infoLabels;
 	}
+	
+	public void generateTrees()
+	{
+		int rateTrees = 25;
+		Random rand = new Random();
+		int tileIndex = 0;
+		int type = 0;
+		
+		Image tree = null;
+		for(int i = 0; i < rateTrees; ++i)
+		{
+			type = rand.nextInt((2 - 0) + 1) + 0;
+			tileIndex = rand.nextInt(grassTiles.size()-1);
+			if(type == 0)
+			{
+				tree = new Image(grassTree1);
+			}
+			else if(type == 1)
+			{
+				tree = new Image(grassTree2);
+			}
+			else
+			{
+				tree = new Image(grassTree1);
+			}
+			tree.setPosition(grassTiles.get(tileIndex).getX(), grassTiles.get(tileIndex).getY());
+			grassTiles.get(tileIndex).remove();
+			stage.addActor(tree);
+		}
+	}
+	
+	public void generateRocks()
+	{
+		int rateRocks = 7;
+		Random rand = new Random();
+		int tileIndex = 0;
+		int type = 0;
+		
+		Image rock = null;
+		for(int i = 0; i < rateRocks; ++i)
+		{
+			type = rand.nextInt((2 - 0) + 1) + 0;
+			tileIndex = rand.nextInt(grassTiles.size()-1);
+			if(type == 0)
+			{
+				rock = new Image(rock1);
+			}
+			else if(type == 1)
+			{
+				rock = new Image(rock2);
+			}
+			else
+			{
+				rock = new Image(rock1);
+			}
+			rock.setPosition(grassTiles.get(tileIndex).getX(), grassTiles.get(tileIndex).getY());
+			grassTiles.get(tileIndex).remove();
+			stage.addActor(rock);
+		}
+	}
+	
+
 }

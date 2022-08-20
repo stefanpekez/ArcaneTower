@@ -29,18 +29,22 @@ public class BallistaTower extends Image {
 	private ShapeRenderer sr;
 	private ArrowBallista arrow;
 	private MoveToAction mta;
+	private Timer timer;
 	private Timer timerNormal;
 	private Timer timerFast;
 	private ArrayList<Enemy> enemies;
 	private boolean isHovered;
 	private Sound arrowShot;
 	private InfoLabels infoLabels;
+	private ArrayList<ArrowBallista> arrowsShot;
+	private int speed;
 	
-	public BallistaTower(float xpos, float ypos, ArrayList<Enemy> enemies, InfoLabels infoLabels)
+	public BallistaTower(float xpos, float ypos, ArrayList<Enemy> enemies, InfoLabels infoLabels, int speed)
 	{
 		super(new Texture(Gdx.files.internal("ballistaTower.png")));
 		this.xpos = xpos;
 		this.ypos = ypos;
+		this.speed = speed;
 		
 		setPosition(xpos, ypos);
 		
@@ -53,6 +57,7 @@ public class BallistaTower extends Image {
 		this.isHovered = false;
 		
 		this.arrowShot = Gdx.audio.newSound(Gdx.files.internal("effects\\shoot.ogg"));
+		this.arrowsShot = new ArrayList<ArrowBallista>();
 		
 		this.infoLabels = infoLabels;
 		
@@ -62,6 +67,36 @@ public class BallistaTower extends Image {
 	
 	private void setupTimer()
 	{
+//		timer = new Timer();
+//			timer.scheduleTask(new Timer.Task() {
+//			    @Override
+//			    public void run() {
+//			    	if(enemies.size() > 0)
+//			    	{
+//			    		checkRadius(enemies);
+//			    		for(int i = 0; i < enemies.size(); ++i)
+//			    		{
+//			    			if(enemies.get(i).getInRange())
+//			    			{
+//			    				shootArrow(enemies.get(i).getX(), enemies.get(i).getY());
+//						    	arrowShot.play();
+//						    	enemies.get(i).takeDamage(5);
+//							    if(enemies.get(i).getHealth() <= 0)
+//							    {
+//							    	enemies.get(i).playDeathSound();
+//									infoLabels.addMoney(enemies.get(i).getBounty());
+//									enemies.get(i).remove();
+//									enemies.remove(i);
+//							        return;
+//							    }
+//			    				break;
+//			    			}
+//			    		}
+//			    	}
+//			    }
+//			}, 0f, 1.5f);
+			
+			
 		timerNormal = new Timer();
 		timerNormal.scheduleTask(new Timer.Task() {
 		    @Override
@@ -73,6 +108,7 @@ public class BallistaTower extends Image {
 		    		{
 		    			if(enemies.get(i).getInRange())
 		    			{
+		    				System.out.println("shoot normal");
 		    				shootArrow(enemies.get(i).getX(), enemies.get(i).getY());
 					    	arrowShot.play();
 					    	enemies.get(i).takeDamage(5);
@@ -89,11 +125,12 @@ public class BallistaTower extends Image {
 		    		}
 		    	}
 		    }
-		}, 0f, 1.5f);
+		}, 0, 1.5f);
+		timerNormal.stop();
 		
 		timerFast = new Timer();
 		timerFast.scheduleTask(new Timer.Task() {
-			@Override
+		    @Override
 		    public void run() {
 		    	if(enemies.size() > 0)
 		    	{
@@ -102,6 +139,7 @@ public class BallistaTower extends Image {
 		    		{
 		    			if(enemies.get(i).getInRange())
 		    			{
+		    				System.out.println("shoot fast");
 		    				shootArrow(enemies.get(i).getX(), enemies.get(i).getY());
 					    	arrowShot.play();
 					    	enemies.get(i).takeDamage(5);
@@ -109,8 +147,8 @@ public class BallistaTower extends Image {
 						    {
 						    	enemies.get(i).playDeathSound();
 								infoLabels.addMoney(enemies.get(i).getBounty());
-						        enemies.get(i).remove();
-						        enemies.remove(i);
+								enemies.get(i).remove();
+								enemies.remove(i);
 						        return;
 						    }
 		    				break;
@@ -118,7 +156,7 @@ public class BallistaTower extends Image {
 		    		}
 		    	}
 		    }
-		}, 0f, (1.5f / 2f));
+		}, 1.5f / 2, 1.5f / 2);
 		timerFast.stop();
 	}
 	
@@ -128,20 +166,22 @@ public class BallistaTower extends Image {
 		timerFast.stop();
 	}
 	
+	public void setSpeed(int speed)
+	{
+		this.speed = speed;
+	}
+	
 	public void resumeTimer(int speed)
 	{
 		if(speed == 1)
 		{
 			timerNormal.start();
 			timerFast.stop();
-		}
-			
-		else
+		} else
 		{
 			timerNormal.stop();
 			timerFast.start();
 		}
-			
 	}
 	
 	public void checkRadius(ArrayList<Enemy> enemies)
@@ -171,6 +211,7 @@ public class BallistaTower extends Image {
 		mta = new MoveToAction();
 		mta = Actions.moveTo(x  + (32 - 16) / 2, y  + (32 - 16) / 2, 0.05f);
 		arrow = new ArrowBallista();
+		getStage().addActor(arrow);
 		arrow.setPosition(xpos, ypos);
 		arrow.addAction(Actions.sequence(mta, Actions.run(new Runnable() {
 						
@@ -180,7 +221,6 @@ public class BallistaTower extends Image {
 				arrow.remove();
 			}
 		})));
-		getStage().addActor(arrow);
 	}
 	
 	

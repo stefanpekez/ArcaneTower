@@ -7,9 +7,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 public class TowerPanel extends Image{
@@ -27,6 +30,9 @@ public class TowerPanel extends Image{
 	private TowerButton ballista;
 	
 	private InfoLabels infoLabels;
+	
+	private TextureRegionDrawable inactiveBallista;
+	private TextureRegionDrawable activeBallista;
 	
 	private Pixmap pm;
 	
@@ -46,8 +52,10 @@ public class TowerPanel extends Image{
 //		this.stage = stage;
 		this.screen = screen;
 		
-		this.ballistaIcon = new TextureRegionDrawable(new Texture(Gdx.files.internal("ballistaIcon.png")));
-		this.ballista = new TowerButton(this.ballistaIcon);
+		inactiveBallista = new TextureRegionDrawable(new Texture(Gdx.files.internal("ballistaIcon.png")));
+		activeBallista = new TextureRegionDrawable(new Texture(Gdx.files.internal("ballistaIconActive.png")));
+		
+		this.ballista = new TowerButton(inactiveBallista);
 		this.pm = null;
 		
 		addActions();
@@ -58,10 +66,25 @@ public class TowerPanel extends Image{
 	public void addActions()
 	{
 		
-		this.ballista.addListener(new ChangeListener()
+		this.ballista.addListener(new ClickListener()
 		{
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {
+			public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+				// TODO Auto-generated method stub
+				ballista.setDrawable(activeBallista);
+			}
+			
+			@Override
+			public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+				// TODO Auto-generated method stub
+				ballista.setDrawable(inactiveBallista);
+			}
+		});
+		
+		this.ballista.addListener(new ActorGestureListener()
+		{
+			@Override
+			public void touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
 				if(infoLabels.getMoney() - 50 < 0)
 					return;
@@ -70,11 +93,13 @@ public class TowerPanel extends Image{
 				if (!place.getTextureData().isPrepared()) {
 					place.getTextureData().prepare();
 				}
+				ballista.setSpeedBeforeSelect(screen.getGameSpeed());
 				pm = place.getTextureData().consumePixmap();
 				Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 128, 128));
 				ballista.setDisabled(true);
-				System.out.println(ballista.isDisabled());
+//				System.out.println(ballista.isDisabled());
 				screen.setGameSpeed(0);
+//				screen.setEnemySpeed(0);
 			}
 		});
 		
